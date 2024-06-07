@@ -18,12 +18,13 @@ public class ConibearModSystem : ModSystem
         api.Logger.Notification("Hello from template mod: " + api.Side);
         api.RegisterBlockClass(Mod.Info.ModID + ".conibear", typeof(ConibearTrap));
         api.RegisterBlockEntityClass(Mod.Info.ModID + ".blockentityconibear", typeof(BlockEntityConibearTrap));
+        api.RegisterEntityBehaviorClass(Mod.Info.ModID + ".trapped", typeof(TrappedBehaviour));
         api.Event.OnEntitySpawn += OnEntitySpawn;
     }
 
     private void OnEntitySpawn(Entity entity)
     {
-        if (entity.IsCreature && entity.Alive)
+        if (entity.IsCreature)
         {
             var trappedBehaviour = new TrappedBehaviour(entity);
             entity.AddBehavior(trappedBehaviour);

@@ -11,6 +11,14 @@ namespace Conibear.EntityBehaviour
         private long listenerId;
         public TrappedBehaviour(Entity entity) : base(entity)
         {
+            // Initialize the trappedData attributes
+            if (entity.WatchedAttributes.GetTreeAttribute("trappedData") == null)
+            {
+                ITreeAttribute treeAttribute = new TreeAttribute();
+                entity.WatchedAttributes.SetAttribute("trappedData", treeAttribute);
+            }
+            this.listenerId = this.entity.World.RegisterGameTickListener(new Action<float>(this.Tick), 1);
+            this.entity.Api.Logger.Warning("Game tick listener registered with ID: " + this.listenerId);
         }
         
         public BlockPos TrappedPos
@@ -46,12 +54,13 @@ namespace Conibear.EntityBehaviour
                 entity.WatchedAttributes.SetAttribute("trappedData", treeAttribute);
                 TrappedPos = typeAttributes["trappedPos"].AsObject<BlockPos>();
             }
-            this.listenerId = this.entity.World.RegisterGameTickListener(new Action<float>(this.Tick), 5);
+            this.listenerId = this.entity.World.RegisterGameTickListener(new Action<float>(this.Tick), 1);
+            this.entity.Api.Logger.Warning("Game tick listener registered with ID: " + this.listenerId);
         }
 
         public override string PropertyName()
         {
-            return "conibear:trapped";
+            return "trapped";
         }
         
         public override void OnEntityDespawn(EntityDespawnData despawn)
@@ -62,6 +71,7 @@ namespace Conibear.EntityBehaviour
         
         private void Tick(float deltaTime)
         {
+            this.entity.Api.Logger.Warning("Trapped Behaviour Tick");
             // Check if the entity is trapped
             if (this.IsTrapped && entity.Alive)
             {

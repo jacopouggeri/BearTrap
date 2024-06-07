@@ -159,6 +159,7 @@ namespace Conibear.BlockEntity
                     Api.Logger.Warning("Trapped at: " + Pos);
                     Api.Logger.Warning("Trapped: " + trappedData.GetBool("isTrapped"));
                     Api.Logger.Warning("Trapped entity: " + entity.Code);
+                    Api.Logger.Warning("Trapped entity behaviour present: " + (entity.GetBehavior<TrappedBehaviour>() != null).ToString());
                     
                     entity.ReceiveDamage(new DamageSource()
                         {
@@ -169,7 +170,6 @@ namespace Conibear.BlockEntity
                         },
                         damage: 5);
                     inv[0].Itemstack = null;
-                    
                     trappedEntity = entity;
                 }
                 else
