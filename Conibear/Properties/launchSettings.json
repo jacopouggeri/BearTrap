@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Client": {
+      "commandName": "Executable",
+      "executablePath": "bash",
+      "commandLineArgs": "-c \"cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/Vintagestory --tracelog\"",
+      "workingDirectory": "$(VINTAGE_STORY)"
+    },
+    "Server": {
+      "commandName": "Executable",
+      "executablePath": "bash",
+      "commandLineArgs": "-c \"cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/VintagestoryServer --tracelog\"",
+      "workingDirectory": "$(VINTAGE_STORY)"
+    }
+  }
+}
