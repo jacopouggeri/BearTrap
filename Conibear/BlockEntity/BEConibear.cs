@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using System.Text;
-using Conibear.EntityBehaviour;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -9,7 +7,6 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
-using VSEssentials;
 
 namespace Conibear.BlockEntity
 {
@@ -29,8 +26,9 @@ namespace Conibear.BlockEntity
         public override string InventoryClassName => "conibear";
         public override int DisplayedItems => baited ? 1 : 0;
         public override string AttributeTransformCode => "conibear";
-        private Entity trappedEntity = null;
         private Boolean baited = false;
+        
+        private long listenerId;
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.1, 0.5);
         public string Type => inv.Empty ? "nothing" : "food";
@@ -57,7 +55,7 @@ namespace Conibear.BlockEntity
         {
             get
             {
-                Vintagestory.API.Common.Block block = this.Block as Vintagestory.API.Common.Block;
+                Vintagestory.API.Common.Block block = Block;
                 return block?.Variant["state"];
             }
         }
@@ -71,6 +69,40 @@ namespace Conibear.BlockEntity
             if (api.Side != EnumAppSide.Client)
             {
                 sapi.ModLoader.GetModSystem<POIRegistry>().AddPOI(this);
+            }
+
+            Api.World.RegisterGameTickListener(new Action<float>(this.TrapEntities), 1);
+        }
+
+        private Entity[] LoadTrappedEntities()
+        {
+            var entities = Api.World.GetEntitiesAround(Pos.ToVec3d(), 5, 5, e => 
+            {
+                var trappedData = e.WatchedAttributes.GetTreeAttribute("trappedData");
+                return trappedData != null && trappedData.GetBool("isTrapped") && e.Alive;
+            });
+            return entities;
+        }
+        
+        private void TrapEntities(float deltaTime)
+        {
+            foreach (var entity in LoadTrappedEntities())
+            {
+                var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
+                if (trappedPos.Equals(Pos))
+                {
+                    Vec3d direction = Pos.ToVec3d().Add(0.5, 0, 0.5).Add(entity.ServerPos.XYZ.Mul(-1));
+                    double distance = direction.Length();
+                    direction.Normalize();
+                    double scale = Math.Max(0, 1 - distance * 0.1);
+                    Vec3d desiredMotion = direction.Mul(scale);
+
+                    // Interpolate between the current motion and the desired motion
+                    double interpolationFactor = 0.1; // Adjust this value to change the speed of interpolation
+                    Vec3d newMotion = entity.ServerPos.Motion.Mul(1 - interpolationFactor).Add(desiredMotion.Mul(interpolationFactor));
+
+                    entity.ServerPos.Motion.Set(newMotion.X, newMotion.Y, newMotion.Z);
+                }
             }
         }
 
@@ -159,8 +191,7 @@ namespace Conibear.BlockEntity
                     Api.Logger.Warning("Trapped at: " + Pos);
                     Api.Logger.Warning("Trapped: " + trappedData.GetBool("isTrapped"));
                     Api.Logger.Warning("Trapped entity: " + entity.Code);
-                    Api.Logger.Warning("Trapped entity behaviour present: " + (entity.GetBehavior<TrappedBehaviour>() != null).ToString());
-                    
+
                     entity.ReceiveDamage(new DamageSource()
                         {
                             Source = EnumDamageSource.Block,
@@ -170,7 +201,6 @@ namespace Conibear.BlockEntity
                         },
                         damage: 5);
                     inv[0].Itemstack = null;
-                    trappedEntity = entity;
                 }
                 else
                 {
@@ -212,10 +242,13 @@ namespace Conibear.BlockEntity
         public override void OnBlockBroken(IPlayer byPlayer = null)
         {
             base.OnBlockBroken(byPlayer);
-            if (trappedEntity != null &&
-                trappedEntity.WatchedAttributes.GetTreeAttribute("trappedData").HasAttribute("isTrapped"))
+            foreach (var entity in LoadTrappedEntities())
             {
-                trappedEntity.WatchedAttributes.GetTreeAttribute("trappedData").SetBool("isTrapped", false);
+                var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
+                if (trappedPos.Equals(Pos))
+                {
+                    entity.WatchedAttributes.RemoveAttribute("trappedData");
+                }
             }
         }
 

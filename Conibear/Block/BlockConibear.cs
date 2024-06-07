@@ -56,15 +56,7 @@ namespace Conibear.Block
 
         public override Cuboidf[] GetCollisionBoxes(IBlockAccessor blockAccessor, BlockPos pos)
         {
-            var be = GetBlockEntity<BlockEntityConibearTrap>(pos);
-            if (be != null && be.TrapState == BlockEntity.EnumTrapState.Closed)
-            {
-                return new Cuboidf[] { new Cuboidf(0, 0, 0, 1, 0.1f, 1) };
-            }
-            else
-            {
-                return new Cuboidf[] { new Cuboidf(0, 0, 0, 1, 0.1f, 1) };
-            }
+            return new Cuboidf[] { new Cuboidf(0, 0, 0, 1, 0.05f, 1) };
         }
 
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)

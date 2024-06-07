@@ -2,7 +2,7 @@
   code: "conibear",
   class: "conibear.conibear",
   entityclass: "conibear.blockentityconibear",
-  behaviors: [{name: "Lockable" }],
+  behaviors: [{name: "Lockable" }, {name: "BreakIfFloating"}, { name: "RightClickPickup", properties: { dropsPickupMode: true, sound: "game:sounds/effect/anvilhit2" }}],
   variantgroups: [
     { code:"metal", states: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "stainlesssteel"] },
     {
@@ -70,15 +70,14 @@
     "break": "game:block/ingot",
     "walk": "game:walk/stone*"
   },
-  materialDensity: 200,
+  materialDensity: 400,
   fpHandTransform: {
     rotation: { x: 38, y: 90, z: -30 },
     scale: 1.6
   },
 
   guiTransform: {
-    translation: { x: 0, y: 0, z: 0 },
-    rotation: { x: 161, y: -121, z: 7 },
+    rotation: { x: -40, y: -164, z: -5 },
     origin: { x: 0.5, y: 0.15, z: 0.5 },
     scale: 2.41
   },
