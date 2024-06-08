@@ -12,7 +12,7 @@ public class BearTrapModSystem : ModSystem
     public override void Start(ICoreAPI api)
     {
         //api.Logger.Notification("Hello from template mod: " + api.Side);
-        api.RegisterBlockClass(Mod.Info.ModID + ".beartrap", typeof(Block.BearTrap));
+        api.RegisterBlockClass(Mod.Info.ModID + ".beartrap", typeof(ModBlock.BearTrap));
         api.RegisterBlockEntityClass(Mod.Info.ModID + ".blockentitybeartrap", typeof(BlockEntityBearTrap));
     }
 

@@ -2,7 +2,7 @@
   "code": "beartrap",
   "class": "beartrap.beartrap",
   "entityclass": "beartrap.blockentitybeartrap",
-  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}, { "name": "RightClickPickup", "properties": { "dropsPickupMode": true, "sound": "game:sounds/effect/anvilhit2" }}],
+  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}],
   "variantgroups": [
     {
       "code": "metal",

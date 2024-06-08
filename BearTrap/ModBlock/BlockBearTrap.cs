@@ -4,35 +4,73 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
+using EnumTrapState = BearTrap.ModBlockEntity.EnumTrapState;
 
-namespace BearTrap.Block
+namespace BearTrap.ModBlock
 {
 
-    public class BearTrap : Vintagestory.API.Common.Block
+    public class BearTrap : Block
     {
         protected float rotInterval = GameMath.PIHALF / 4;
-
-        public override void OnLoaded(ICoreAPI api)
-        {
-            base.OnLoaded(api);
-        }
 
         public override void OnEntityCollide(IWorldAccessor world, Entity entity, BlockPos pos, BlockFacing facing, Vec3d collideSpeed,
             bool isImpact)
         {
+            base.OnEntityCollide(world, entity, pos, facing, collideSpeed, isImpact);
+        }
+
+        public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
+        {
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             if (be != null &&
-                be.TrapState != ModBlockEntity.EnumTrapState.Destroyed &&
-                be.TrapState != ModBlockEntity.EnumTrapState.Closed)
+                be.TrapState == EnumTrapState.Open)
             {
                 be.SnapClosed(entity);
             }
-            base.OnEntityCollide(world, entity, pos, facing, collideSpeed, isImpact);
+            base.OnEntityInside(world, entity, pos);
+        }
+
+        public override WorldInteraction[] GetPlacedBlockInteractionHelp(IWorldAccessor world, BlockSelection blockSel, IPlayer forPlayer)
+        {
+            var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
+            if (be != null)
+            {
+                WorldInteraction[] interactions = new WorldInteraction[]
+                {
+                    new WorldInteraction()
+                    {
+                        ActionLangCode = "blockhelp-behavior-rightclickpickup",
+                        MouseButton = EnumMouseButton.Right,
+                        RequireFreeHand = true
+                    }
+                };
+                if (be.TrapState == EnumTrapState.Closed)
+                {
+                    interactions = interactions.Append(new WorldInteraction()
+                    {
+                        HotKeyCode = "shift",
+                        ActionLangCode = "blockhelp-beartrap-open",
+                        MouseButton = EnumMouseButton.Right,
+                        RequireFreeHand = true
+                    });
+                }
+
+                return interactions;
+            }
+            return base.GetPlacedBlockInteractionHelp(world, blockSel, forPlayer);
         }
 
         public override bool DoPlaceBlock(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ItemStack byItemStack)
         {
+            // Check if the block below is solid
+            Block blockBelow = world.BlockAccessor.GetBlock(blockSel.Position.DownCopy());
+            if (!blockBelow.SideSolid[BlockFacing.UP.Index])
+            {
+                return false;
+            }
+            
             bool val = base.DoPlaceBlock(world, byPlayer, blockSel, byItemStack);
 
             if (val)
@@ -57,7 +95,7 @@ namespace BearTrap.Block
 
         public override Cuboidf[] GetCollisionBoxes(IBlockAccessor blockAccessor, BlockPos pos)
         {
-            return new Cuboidf[] { new Cuboidf(0, 0, 0, 1, 0.05f, 1) };
+            return new[] { new Cuboidf(0, 0, 0, 0.1, 0, 1) };
         }
 
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
@@ -70,11 +108,11 @@ namespace BearTrap.Block
         public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
         {
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
-            if (be != null && be.TrapState == ModBlockEntity.EnumTrapState.Destroyed)
+            if (be != null && be.TrapState == EnumTrapState.Destroyed)
             {
                 var material = this.Variant["metal"];
                 api.Logger.Notification("Dropping bits of " + material + "!");
-                return new ItemStack[] { new ItemStack(world.GetItem(new AssetLocation("game:item-metalbit-" + material)), 6 + world.Rand.Next(8)) };
+                return new[] { new ItemStack(world.GetItem(new AssetLocation("game:item-metalbit-" + material)), 6 + world.Rand.Next(8)) };
             }
 
             return base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
