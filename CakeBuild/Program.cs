@@ -93,6 +93,7 @@ public sealed class BuildTask : FrostingTask<BuildContext>
 
 [TaskName("Package")]
 [IsDependentOn(typeof(BuildTask))]
+
 public sealed class PackageTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)

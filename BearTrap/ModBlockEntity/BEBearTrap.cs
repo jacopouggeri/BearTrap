@@ -262,6 +262,7 @@ namespace BearTrap.ModBlockEntity
 
         public void SnapClosed(Entity entity)
         {
+            if (ShapeState != "open") return;
             if (entity.IsCreature)
             {
                 Api.Logger.Notification("Snap!");

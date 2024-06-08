@@ -1,5 +1,5 @@
 {
-    "block-beartrap-copper-*": "Copper bear trap closed",
+    "block-beartrap-copper-*": "Copper bear trap",
     "block-beartrap-tinbronze-*": "Tin bronze bear trap",
     "block-beartrap-bismuthbronze-*": "Bismuth bronze bear trap",
     "block-beartrap-blackbronze-*": "Black bronze bear trap",
@@ -8,7 +8,17 @@
     "block-beartrap-steel-*": "Steel bear trap",
     "block-beartrap-stainlesssteel-*": "Stainless steel bear trap",
 
+    "item-beartrapjaw-copper": "Copper bear trap jawpiece",
+    "item-beartrapjaw-tinbronze": "Tin bronze bear trap jawpiece",
+    "item-beartrapjaw-bismuthbronze": "Bismuth bronze bear trap jawpiece",
+    "item-beartrapjaw-blackbronze": "Black bronze bear trap jawpiece",
+    "item-beartrapjaw-iron": "Iron bear trap jawpiece",
+    "item-beartrapjaw-meteoriciron": "Meteoric iron bear trap jawpiece",
+    "item-beartrapjaw-steel": "Steel bear trap jawpiece",
+    "item-beartrapjaw-stainlesssteel": "Stainless steel bear trap jawpiece",
+
     "itemdesc-beartrap-*": "They're not getting to your pen this time!",
+    "itemcraftdesc-beartrapjaw-*": "To create a bear trap",
     "blockcraftdesc-beartrap-*": "Place on the ground to trap passing creatures",
     "deathmsg-beartrap-snapped": "Was caught in a bear trap"
 }

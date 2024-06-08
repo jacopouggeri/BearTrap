@@ -21,6 +21,6 @@
     "_________",
     "____#____"
   ]],
-  name: "Bear trap",
-  output: { type: "block", code: "beartrap:beartrap-{metal}-open"  }
+  name: "2 Bear trap jawpieces",
+  output: { type: "item", code: "beartrap:beartrapjaw-{metal}", quantity: 2 }
 }

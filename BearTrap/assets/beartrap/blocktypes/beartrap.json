@@ -1,10 +1,22 @@
 {
-  code: "beartrap",
-  class: "beartrap.beartrap",
-  entityclass: "beartrap.blockentitybeartrap",
-  behaviors: [{name: "Lockable" }, {name: "BreakIfFloating"}, { name: "RightClickPickup", properties: { dropsPickupMode: true, sound: "game:sounds/effect/anvilhit2" }}],
-  variantgroups: [
-    { code:"metal", states: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "stainlesssteel"] },
+  "code": "beartrap",
+  "class": "beartrap.beartrap",
+  "entityclass": "beartrap.blockentitybeartrap",
+  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}, { "name": "RightClickPickup", "properties": { "dropsPickupMode": true, "sound": "game:sounds/effect/anvilhit2" }}],
+  "variantgroups": [
+    {
+      "code": "metal",
+      "states": [
+        "copper",
+        "tinbronze",
+        "bismuthbronze",
+        "blackbronze",
+        "iron",
+        "meteoriciron",
+        "steel",
+        "stainlesssteel"
+      ]
+    },
     {
       "code": "state",
       "states": [
@@ -14,33 +26,30 @@
       ]
     }
   ],
-  creativeinventory: {
+  "creativeinventory": {
     "general": [
-      "*-open"
+      "*-closed"
     ],
     "decorative": [
-      "*-open",
+      "*-closed",
       "*-destroyed"
     ]
   },
-  heldTpIdleAnimation: "holdunderarm",
-  shapebytype: {
+  "heldTpIdleAnimation": "holdunderarm",
+  "shapebytype": {
     "*-open": { base: "beartrap:beartrap-open" },
     "*-closed": { base: "beartrap:beartrap-closed" },
     "*-destroyed": { base: "game:block/reed/baskettrap-broke" }
   },
-  blockmaterial: "Metal",
-  replaceable: 100,
-  resistance: 2,
-  lightAbsorption: 0,
-  maxStackSize: 1,
-  "attributes": {
-    killedByInfoText: "beartrap-snapped"
-  },
-  textures: {
-    all: { base: "game:block/metal/ingot/{metal}" },
-    ironbloom: { base: "game:item/resource/ironbloom" },
-    blistersteel: { base: "game:block/metal/ingot/blistersteel" }
+  "blockmaterial": "Metal",
+  "replaceable": 100,
+  "resistance": 2,
+  "lightAbsorption": 0,
+  "maxStackSize": 1,
+  "textures": {
+    "all": { "base": "game:block/metal/ingot/{metal}" },
+    "ironbloom": { "base": "game:item/resource/ironbloom" },
+    "blistersteel": { "base": "game:block/metal/ingot/blistersteel" }
   },
   sideAo: {
     all: false
@@ -67,7 +76,7 @@
     y2: 0.5625,
     z2: 0.875
   },
-  sounds: {
+  "sounds": {
     "place": "game:block/ingot",
     "hit": "game:block/ingot",
     "break": "game:block/ingot",
