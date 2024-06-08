@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -6,6 +7,7 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace Conibear.BlockEntity
@@ -27,15 +29,54 @@ namespace Conibear.BlockEntity
         public override int DisplayedItems => baited ? 1 : 0;
         public override string AttributeTransformCode => "conibear";
         private Boolean baited = false;
-        
         private long listenerId;
+        public float MaxDamage
+        { 
+            get
+            {
+                DurabilityByType.TryGetValue(MetalVariant, out var value);
+                return value != 0 ? value : 50;
+            }
+        }
 
-        public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.1, 0.5);
+        private float _damage;
+        public float Damage 
+        { 
+            get { return _damage; }
+            set { _damage = Math.Min(value, MaxDamage); } // Ensure Damage never exceeds MaxDamage
+        }
+        
+        private static readonly Dictionary<string, float> DurabilityByType = new Dictionary<string, float>
+        {
+            {"copper", 50},
+            {"tinbronze", 150},
+            {"bismuthbronze", 150},
+            {"blackbronze", 200},
+            {"iron", 350},
+            {"meteoriciron", 400},
+            {"steel", 500},
+            {"stainlesssteel", 700}
+        };
+        
+        private static readonly Dictionary<string, float> SnapDamageByType = new Dictionary<string, float>
+        {
+            {"copper", 7},
+            {"tinbronze", 10},
+            {"bismuthbronze", 10},
+            {"blackbronze", 12.5f},
+            {"iron", 15},
+            {"meteoriciron", 17.5f},
+            {"steel", 20},
+            {"stainlesssteel", 20}
+        };
+
+        public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.0, 0.5);
         public string Type => inv.Empty ? "nothing" : "food";
 
         public EnumTrapState TrapState;
         float rotationYDeg;
         float[] rotMat;
+
 
         public float RotationYDeg
         {
@@ -51,12 +92,30 @@ namespace Conibear.BlockEntity
             inv = new InventoryGeneric(1, null, null);
         }
         
+        public string MetalVariant
+        {
+            get
+            {
+                Vintagestory.API.Common.Block block = Block;
+                return block?.Variant["metal"];
+            }
+        }
+        
         public string ShapeState
         {
             get
             {
                 Vintagestory.API.Common.Block block = Block;
                 return block?.Variant["state"];
+            }
+        }
+        
+        public float SnapDamage
+        {
+            get
+            {
+                SnapDamageByType.TryGetValue(MetalVariant, out var value);
+                return value != 0 ? value : 50;
             }
         }
 
@@ -71,7 +130,7 @@ namespace Conibear.BlockEntity
                 sapi.ModLoader.GetModSystem<POIRegistry>().AddPOI(this);
             }
 
-            Api.World.RegisterGameTickListener(new Action<float>(this.TrapEntities), 1);
+            Api.World.RegisterGameTickListener(new Action<float>(this.TrapEntities), 10);
         }
 
         private Entity[] LoadTrappedEntities()
@@ -88,9 +147,22 @@ namespace Conibear.BlockEntity
         {
             foreach (var entity in LoadTrappedEntities())
             {
+                if (!entity.Alive) {ReleaseTrappedEntity(); return;}
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
                 if (trappedPos.Equals(Pos))
                 {
+                    if (entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.5)
+                    {
+                        DamageEntity(entity, SnapDamage);
+                        Damage += 1;
+                        if (Math.Abs(Damage - MaxDamage) < 0.001)
+                        {
+                            SetDestroyed();
+                            return;
+                        }
+                    }
+                    
+                    
                     Vec3d direction = Pos.ToVec3d().Add(0.5, 0, 0.5).Add(entity.ServerPos.XYZ.Mul(-1));
                     double distance = direction.Length();
                     direction.Normalize();
@@ -106,37 +178,56 @@ namespace Conibear.BlockEntity
             }
         }
 
+        private void SetDestroyed()
+        {
+            TrapState = EnumTrapState.Destroyed;
+            ReplaceBlockWithState("destroyed");
+            MarkDirty(true);
+            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
+                Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
+            ReleaseTrappedEntity();
+        }
+
         public bool Interact(IPlayer player, BlockSelection blockSel)
         {
-            if (ShapeState == "destroyed") return true;
-            
-            if (inv[0].Empty)
+            if (ShapeState == "open" && !player.Entity.Controls.Sneak) {DamageEntity(player.Entity, 5);}
+            if (ShapeState == "open" && player.Entity.Controls.Sneak)
             {
-                var stack = new ItemStack(Block);
 
-                if (ShapeState == "open") tryReadyTrap(player);
+                if (inv[0].Empty)
+                {
+                    var stack = new ItemStack(Block);
+
+                    if (ShapeState == "open") tryReadyTrap(player);
+                    else
+                    {
+                        if (!player.InventoryManager.ActiveHotbarSlot.Empty) return true;
+
+                        if (!player.InventoryManager.TryGiveItemstack(stack))
+                        {
+                            Api.World.SpawnItemEntity(stack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
+                        }
+
+                        Api.World.BlockAccessor.SetBlock(0, Pos);
+                    }
+                }
                 else
                 {
-                    if (!player.InventoryManager.ActiveHotbarSlot.Empty) return true;
-
-                    if (!player.InventoryManager.TryGiveItemstack(stack))
+                    if (!player.InventoryManager.TryGiveItemstack(inv[0].Itemstack))
                     {
-                        Api.World.SpawnItemEntity(stack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
+                        Api.World.SpawnItemEntity(inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
                     }
 
                     Api.World.BlockAccessor.SetBlock(0, Pos);
                 }
-            } else
+            } else if (ShapeState == "closed" && player.Entity.Controls.Sneak)
             {
-                if (!player.InventoryManager.TryGiveItemstack(inv[0].Itemstack))
-                {
-                    Api.World.SpawnItemEntity(inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
-                }
-
-                Api.World.BlockAccessor.SetBlock(0, Pos);
+                TrapState = EnumTrapState.Open;
+                ReplaceBlockWithState("open");
+                ReleaseTrappedEntity();
+                MarkDirty(true);
             }
 
-            
             return true;
         }
 
@@ -173,6 +264,8 @@ namespace Conibear.BlockEntity
         {
             if (entity.IsCreature)
             {
+                Api.Logger.Notification("Snap!");
+                Api.Logger.Notification("Entity: " + entity.Code);
                 float trapChance = entity.Properties.Attributes["trapChance"].AsFloat(0.5f);
                 if (Api.World.Rand.NextDouble() < Double.Max(1 - trapChance - 0.05, 0))
                 {
@@ -188,33 +281,8 @@ namespace Conibear.BlockEntity
                     trappedData.SetBool("isTrapped", true);
                     trappedData.SetBlockPos("trappedPos", Pos);
 
-                    Api.Logger.Warning("Trapped at: " + Pos);
-                    Api.Logger.Warning("Trapped: " + trappedData.GetBool("isTrapped"));
-                    Api.Logger.Warning("Trapped entity: " + entity.Code);
-
-                    entity.ReceiveDamage(new DamageSource()
-                        {
-                            Source = EnumDamageSource.Block,
-                            SourceBlock = this.Block,
-                            Type = EnumDamageType.PiercingAttack,
-                            SourcePos = this.Pos.ToVec3d()
-                        },
-                        damage: 5);
+                    DamageEntity(entity, 10f*SnapDamage);
                     inv[0].Itemstack = null;
-                }
-                else
-                {
-                    inv[0].Itemstack = null;
-                    float trapDestroyChance = entity.Properties.Attributes["trapDestroyChance"].AsFloat(0f);
-                    if (Api.World.Rand.NextDouble() < trapDestroyChance)
-                    {
-                        TrapState = EnumTrapState.Destroyed;
-                        ReplaceBlockWithState("destroyed");
-                        MarkDirty(true);
-                        Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
-                            Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
-                        return;
-                    }
                 }
             }
 
@@ -223,6 +291,22 @@ namespace Conibear.BlockEntity
             ReplaceBlockWithState("closed");
             MarkDirty(true);
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
+        }
+        
+        private void DamageEntity(Entity entity, float dmg)
+        {
+            if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
+            var damage = 0.1f * entity.GetBehavior<EntityBehaviorHealth>().MaxHealth * dmg/100f;
+            bool shouldRelease = entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0;
+            entity.ReceiveDamage(new DamageSource()
+                {
+                    Source = EnumDamageSource.Block,
+                    SourceBlock = this.Block,
+                    Type = EnumDamageType.PiercingAttack,
+                    SourcePos = this.Pos.ToVec3d()
+                },
+                damage: damage);
+            if (shouldRelease) ReleaseTrappedEntity();
         }
         
         public void ReplaceBlockWithState(string state)
@@ -242,6 +326,12 @@ namespace Conibear.BlockEntity
         public override void OnBlockBroken(IPlayer byPlayer = null)
         {
             base.OnBlockBroken(byPlayer);
+            ReleaseTrappedEntity();
+        }
+
+        private void ReleaseTrappedEntity()
+        {
+            Api.Logger.Warning("Releasing trapped entity");
             foreach (var entity in LoadTrappedEntities())
             {
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
@@ -259,6 +349,7 @@ namespace Conibear.BlockEntity
             {
                 Api.ModLoader.GetModSystem<POIRegistry>().RemovePOI(this);
             }
+            ReleaseTrappedEntity();
         }
 
         public override void OnBlockUnloaded()
@@ -277,25 +368,30 @@ namespace Conibear.BlockEntity
 
             TrapState = (EnumTrapState)tree.GetInt("trapState");
             RotationYDeg = tree.GetFloat("rotationYDeg");
-            
+
             // Do this last
             RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
         }
 
+
         public override void ToTreeAttributes(ITreeAttribute tree)
         {
             base.ToTreeAttributes(tree);
+
             tree.SetInt("trapState", (int)TrapState);
             tree.SetFloat("rotationYDeg", rotationYDeg);
         }
+
         
         public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
         {
-            if (TrapState == EnumTrapState.Closed)
+            if (TrapState == EnumTrapState.Destroyed)
             {
-                dsc.Append("Snapped Closed!\n");
+                dsc.Append("This trap was destroyed\n");
+                return;
             }
-            else
+            dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");
+            if (baited)
             {
                 dsc.Append(BlockEntityShelf.PerishableInfoCompact(Api, inv[0], 0));
             }
@@ -317,6 +413,29 @@ namespace Conibear.BlockEntity
             }
 
             return tfMatrices;
+        }
+        
+        public MeshData GetOrCreateMesh(AssetLocation loc, ITexPositionSource texSource = null)
+        {
+            return ObjectCacheUtil.GetOrCreate(Api, "destroyedBasketTrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
+            {
+                var shape = Api.Assets.Get<Shape>(loc);
+                if (texSource == null)
+                {
+                    texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
+                }
+
+                (Api as ICoreClientAPI).Tesselator.TesselateShape("basket trap decal", Api.Assets.Get<Shape>(loc), out var meshdata, texSource);
+                return meshdata;
+            });
+        }
+        
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
+        {
+
+            bool skip = base.OnTesselation(mesher, tessThreadTesselator);
+            if (!skip) mesher.AddMeshData(capi.TesselatorManager.GetDefaultBlockMesh(Block), rotMat);
+            return true;
         }
     }
 }

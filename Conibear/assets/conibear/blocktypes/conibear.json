@@ -34,10 +34,13 @@
   resistance: 2,
   lightAbsorption: 0,
   maxStackSize: 1,
+  "attributes": {
+    killedByInfoText: "conibear-snapped"
+  },
   textures: {
     all: { base: "game:block/metal/ingot/{metal}" },
     ironbloom: { base: "game:item/resource/ironbloom" },
-    blistersteel: { base: "game:block/metal/ingot/blistersteel" },
+    blistersteel: { base: "game:block/metal/ingot/blistersteel" }
   },
   sideAo: {
     all: false
@@ -79,7 +82,7 @@
   guiTransform: {
     rotation: { x: -40, y: -164, z: -5 },
     origin: { x: 0.5, y: 0.15, z: 0.5 },
-    scale: 2.41
+    scale: 2.01
   },
 
   groundTransform: {
@@ -90,8 +93,8 @@
   },
 
   tpHandTransform: {
-    rotation: { x: 0, y: -175, z: 9 },
-    origin: { x: 0.75, y: 1.5, z: 1 },
-    scale: 0.53
+    rotation: { x: -69, y: -7, z: -22 },
+    origin: { x: 0.75, y: 1.6, z: 0.2 },
+    scale: 0.8
   }
 }

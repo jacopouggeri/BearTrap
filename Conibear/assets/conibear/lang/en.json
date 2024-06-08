@@ -8,5 +8,9 @@
     "block-conibear-iron-*": "Iron conibear",
     "block-conibear-meteoriciron-*": "Meteoric iron conibear",
     "block-conibear-steel-*": "Steel conibear",
-    "block-conibear-stainlesssteel-*": "Stainless steel conibear"
+    "block-conibear-stainlesssteel-*": "Stainless steel conibear",
+
+    "itemdesc-conibear-*": "They're not getting to your pen this time!",
+    "blockcraftdesc-conibear-*": "Place on the ground to trap passing creatures",
+    "deathmsg-conibear-snapped": "Was caught in a conibear trap"
 }

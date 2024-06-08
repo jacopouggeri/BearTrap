@@ -4,6 +4,8 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
+using Vintagestory.GameContent;
+using EnumTrapState = Conibear.BlockEntity.EnumTrapState;
 
 namespace Conibear.Block
 {
@@ -62,7 +64,7 @@ namespace Conibear.Block
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
         {
             var be = GetBlockEntity<BlockEntityConibearTrap>(blockSel.Position);
-            if (be != null) return be.Interact(byPlayer, blockSel);
+            if (be != null) return be.Interact(byPlayer, blockSel) && base.OnBlockInteractStart(world, byPlayer, blockSel);
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
 
@@ -79,5 +81,17 @@ namespace Conibear.Block
             return base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
         }
         
+        public override void GetDecal(IWorldAccessor world, BlockPos pos, ITexPositionSource decalTexSource, ref MeshData decalModelData, ref MeshData blockModelData)
+        {
+            var be = GetBlockEntity<BlockEntityBasketTrap>(pos);
+            if (be != null)
+            {
+                blockModelData = be.GetCurrentMesh(null).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+                return;
+            }
+
+            base.GetDecal(world, pos, decalTexSource, ref decalModelData, ref blockModelData);
+
+        }
     }
 }
