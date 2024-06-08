@@ -33,7 +33,7 @@ namespace BearTrap.ModBlockEntity
         { 
             get
             {
-                DurabilityByType.TryGetValue(MetalVariant, out var value);
+                _durabilityByType.TryGetValue(MetalVariant, out var value);
                 return value != 0 ? value : 50;
             }
         }
@@ -44,30 +44,9 @@ namespace BearTrap.ModBlockEntity
             get => _damage;
             set => _damage = Math.Min(value, MaxDamage); // Ensure Damage never exceeds MaxDamage
         }
-        
-        private static readonly Dictionary<string, float> DurabilityByType = new Dictionary<string, float>
-        {
-            {"copper", 50},
-            {"tinbronze", 150},
-            {"bismuthbronze", 150},
-            {"blackbronze", 200},
-            {"iron", 350},
-            {"meteoriciron", 400},
-            {"steel", 500},
-            {"stainlesssteel", 700}
-        };
-        
-        private static readonly Dictionary<string, float> SnapDamageByType = new Dictionary<string, float>
-        {
-            {"copper", 7},
-            {"tinbronze", 10},
-            {"bismuthbronze", 10},
-            {"blackbronze", 12.5f},
-            {"iron", 15},
-            {"meteoriciron", 17.5f},
-            {"steel", 20},
-            {"stainlesssteel", 20}
-        };
+        private Dictionary<string, float> _durabilityByType;
+
+        private Dictionary<string, float> _snapDamageByType;
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.25, 0.5);
         public string Type => _inv.Empty ? "nothing" : "food";
@@ -112,7 +91,7 @@ namespace BearTrap.ModBlockEntity
         {
             get
             {
-                SnapDamageByType.TryGetValue(MetalVariant, out var value);
+                _snapDamageByType.TryGetValue(MetalVariant, out var value);
                 return value != 0 ? value : 10;
             }
         }
@@ -127,6 +106,10 @@ namespace BearTrap.ModBlockEntity
             {
                 Sapi?.ModLoader.GetModSystem<POIRegistry>().AddPOI(this);
             }
+            
+            // Load the attribute dictionaries from the json
+            _durabilityByType = Block.Attributes?["durabilityBy"].AsObject<Dictionary<string, float>>();
+            _snapDamageByType = Block.Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
 
             Api.World.RegisterGameTickListener(this.TrapEntities, 10);
         }
@@ -152,12 +135,12 @@ namespace BearTrap.ModBlockEntity
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
                 if (trappedPos.Equals(Pos))
                 {
-                    if (entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.5)
+                    if (entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.2)
                     {
-                        DamageEntity(entity, SnapDamage);
+                        DamageEntityPercent(entity, SnapDamage*0.1f);
                         if (entity.HasBehavior<EntityBehaviorTiredness>())
                         {
-                            entity.GetBehavior<EntityBehaviorTiredness>().Tiredness += 0.75f;
+                            entity.GetBehavior<EntityBehaviorTiredness>().Tiredness += 1.5f;
                         }
                         Damage += 1;
                         if (Math.Abs(Damage - MaxDamage) < 0.001)
@@ -216,7 +199,7 @@ namespace BearTrap.ModBlockEntity
             if (!player.Entity.Controls.Sneak)
             {
                 Api.Logger.Warning("Player not sneaking");
-                DamageEntity(player.Entity, 5);
+                DamageEntityPercent(player.Entity, 5);
                 TrapState = EnumTrapState.Closed;
             }
             
@@ -305,7 +288,7 @@ namespace BearTrap.ModBlockEntity
                     trappedData.SetBool("isTrapped", true);
                     trappedData.SetBlockPos("trappedPos", Pos);
 
-                    DamageEntity(entity, 10f*SnapDamage);
+                    DamageEntityPercent(entity, SnapDamage);
                     _inv[0].Itemstack = null;
                 }
             }
@@ -315,10 +298,10 @@ namespace BearTrap.ModBlockEntity
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
         }
         
-        private void DamageEntity(Entity entity, float dmg)
+        private void DamageEntityPercent(Entity entity, float dmg)
         {
             if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
-            var damage = 0.1f * entity.GetBehavior<EntityBehaviorHealth>().MaxHealth * dmg/100f;
+            var damage = entity.GetBehavior<EntityBehaviorHealth>().MaxHealth * dmg/100f;
             bool shouldRelease = entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0 &&
                                  entity is EntityPlayer;
             entity.ReceiveDamage(new DamageSource()

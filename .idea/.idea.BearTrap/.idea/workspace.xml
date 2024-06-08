@@ -9,15 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Finish refactor, add beartrap jaw piece and crafting recipe">
-      <change afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/patches/bear-seekfood.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BearTrap/assets/game/lang/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BearTrap/modicon.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/BearTrapModSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/BearTrapModSystem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Refined interactions">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/itemtypes/beartrapjaw.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/itemtypes/beartrapjaw.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +191,7 @@
       <workItem from="1717844459066" duration="1171000" />
       <workItem from="1717845964220" duration="4369000" />
       <workItem from="1717850373225" duration="346000" />
-      <workItem from="1717850735396" duration="15844000" />
+      <workItem from="1717850735396" duration="17202000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -254,7 +249,23 @@
       <option name="project" value="LOCAL" />
       <updated>1717851139003</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Refined interactions">
+      <option name="closed" value="true" />
+      <created>1717884329483</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1717884329483</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Refined interactions">
+      <option name="closed" value="true" />
+      <created>1717884352154</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1717884352154</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -272,6 +283,7 @@
     <MESSAGE value="Working but to be balanced" />
     <MESSAGE value="Name refactor" />
     <MESSAGE value="Finish refactor, add beartrap jaw piece and crafting recipe" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finish refactor, add beartrap jaw piece and crafting recipe" />
+    <MESSAGE value="Refined interactions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refined interactions" />
   </component>
 </project>

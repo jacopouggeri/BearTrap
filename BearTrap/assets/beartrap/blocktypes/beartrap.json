@@ -35,6 +35,28 @@
       "*-destroyed"
     ]
   },
+  "attributes": {
+    "snapdamageBy": {
+      "copper": 50,
+      "tinbronze": 150,
+      "bismuthbronze": 150,
+      "blackbronze": 200,
+      "iron": 350,
+      "meteoriciron": 400,
+      "steel": 500,
+      "stainlesssteel": 700
+    },
+    "durabilityBy": {
+      "copper": 50,
+      "tinbronze": 150,
+      "bismuthbronze": 150,
+      "blackbronze": 200,
+      "iron": 350,
+      "meteoriciron": 400,
+      "steel": 500,
+      "stainlesssteel": 700
+    }
+  },
   "heldTpIdleAnimation": "holdunderarm",
   "shapebytype": {
     "*-open": { base: "beartrap:beartrap-open" },
