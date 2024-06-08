@@ -1,0 +1,26 @@
+{
+  ingredient: { type: "item", code: "game:ingot-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "stainlesssteel"] },
+  pattern: [[
+    "___###___",
+    "_##___##_",
+    "_##___##_",
+    "##__#__##",
+    "#########",
+    "##__#__##",
+    "_##___##_",
+    "_##___##_",
+    "___###___"
+  ], [
+    "____#____",
+    "_________",
+    "_#_____#_",
+    "_________",
+    "#_______#",
+    "_________",
+    "_#_____#_",
+    "_________",
+    "____#____"
+  ]],
+  name: "Bear trap",
+  output: { type: "block", code: "beartrap:beartrap-{metal}-open"  }
+}

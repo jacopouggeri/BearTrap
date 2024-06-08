@@ -26,7 +26,7 @@ public static class Program
 
 public class BuildContext : FrostingContext
 {
-    public const string ProjectName = "Conibear";
+    public const string ProjectName = "BearTrap";
     public string BuildConfiguration { get; }
     public string Version { get; }
     public string Name { get; }

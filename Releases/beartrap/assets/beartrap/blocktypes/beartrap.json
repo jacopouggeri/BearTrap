@@ -1,0 +1,100 @@
+{
+  code: "beartrap",
+  class: "beartrap.beartrap",
+  entityclass: "beartrap.blockentitybeartrap",
+  behaviors: [{name: "Lockable" }, {name: "BreakIfFloating"}, { name: "RightClickPickup", properties: { dropsPickupMode: true, sound: "game:sounds/effect/anvilhit2" }}],
+  variantgroups: [
+    { code:"metal", states: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "stainlesssteel"] },
+    {
+      "code": "state",
+      "states": [
+        "open",
+        "closed",
+        "destroyed"
+      ]
+    }
+  ],
+  creativeinventory: {
+    "general": [
+      "*-open"
+    ],
+    "decorative": [
+      "*-open",
+      "*-destroyed"
+    ]
+  },
+  heldTpIdleAnimation: "holdunderarm",
+  shapebytype: {
+    "*-open": { base: "beartrap:beartrap_ready" },
+    "*-closed": { base: "beartrap:beartrap_closed" },
+    "*-destroyed": { base: "game:block/reed/baskettrap-broke" }
+  },
+  blockmaterial: "Metal",
+  replaceable: 100,
+  resistance: 2,
+  lightAbsorption: 0,
+  maxStackSize: 1,
+  "attributes": {
+    killedByInfoText: "beartrap-snapped"
+  },
+  textures: {
+    all: { base: "game:block/metal/ingot/{metal}" },
+    ironbloom: { base: "game:item/resource/ironbloom" },
+    blistersteel: { base: "game:block/metal/ingot/blistersteel" }
+  },
+  sideAo: {
+    all: false
+  },
+  sidesolid: {
+    all: false
+  },
+  sideopaque: {
+    all: false
+  },
+  collisionbox: {
+    x1: 0.125,
+    y1: 0,
+    z1: 0.125,
+    x2: 0.8125,
+    y2: 0.5625,
+    z2: 0.875
+  },
+  selectionbox: {
+    x1: 0.125,
+    y1: 0,
+    z1: 0.125,
+    x2: 0.8125,
+    y2: 0.5625,
+    z2: 0.875
+  },
+  sounds: {
+    "place": "game:block/ingot",
+    "hit": "game:block/ingot",
+    "break": "game:block/ingot",
+    "walk": "game:walk/stone*"
+  },
+  materialDensity: 400,
+  fpHandTransform: {
+    rotation: { x: 38, y: 90, z: -30 },
+    scale: 1.6
+  },
+
+  guiTransform: {
+    rotation: { x: -40, y: -164, z: -5 },
+    origin: { x: 0.5, y: 0.15, z: 0.5 },
+    scale: 2.01
+  },
+
+  groundTransform: {
+    translation: { x: 0, y: 0, z: 0 },
+    rotation: { x: 90, y: 0, z: 0 },
+    origin: { x: 0.5, y: 0.5, z: 0.5299 },
+    scale: 3.21
+  },
+
+  tpHandTransform: {
+    rotation: { x: -69, y: -7, z: -22 },
+    origin: { x: 0.75, y: 1.6, z: 0.2 },
+    scale: 0.8
+  }
+}
