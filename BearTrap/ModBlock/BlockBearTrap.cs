@@ -48,7 +48,7 @@ namespace BearTrap.ModBlock
                         RequireFreeHand = true
                     });
                 }
-                if (be.TrapState == EnumTrapState.Open && !be.HasBait)
+                if (be.TrapState == EnumTrapState.Open && !be.Baited)
                 {
                     interactions = interactions.Append(new WorldInteraction()
                     {

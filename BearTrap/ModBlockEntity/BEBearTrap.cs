@@ -26,9 +26,15 @@ namespace BearTrap.ModBlockEntity
         InventoryGeneric _inv = new(1, null, null);
         public override InventoryBase Inventory => _inv;
         public override string InventoryClassName => "beartrap";
-        public override int DisplayedItems => HasBait ? 1 : 0;
+        public override int DisplayedItems => _baited ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
-        public Boolean HasBait;
+        private Boolean _baited;
+
+        public Boolean Baited
+        {
+            get { return _baited; }
+            set { _baited = value; }
+        }
         private float MaxDamage
         { 
             get
@@ -211,7 +217,7 @@ namespace BearTrap.ModBlockEntity
             if (_inv[0].Empty)
             {
                 Api.Logger.Warning("Trying to bait trap");
-                if (!HasBait) TryReadyTrap(player);
+                if (!_baited) TryReadyTrap(player);
                 else
                 {
                     PickupBlock(player);
@@ -251,7 +257,7 @@ namespace BearTrap.ModBlockEntity
             if (!heldSlot.Empty && (collobj.NutritionProps != null || collobj.Attributes?["foodTags"].Exists == true))
             {
                 _inv[0].Itemstack = heldSlot.TakeOut(1);
-                HasBait = true;
+                _baited = true;
                 heldSlot.MarkDirty();
                 MarkDirty(true);
             }
@@ -259,7 +265,7 @@ namespace BearTrap.ModBlockEntity
 
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
-            if (!HasBait) return false;
+            if (!_baited) return false;
             if (diet.FoodTags.Length == 0) return entity.IsCreature;
             bool dietMatches = diet.Matches(_inv[0].Itemstack);
             return  dietMatches;
@@ -405,7 +411,7 @@ namespace BearTrap.ModBlockEntity
                 return;
             }
             dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");
-            if (HasBait)
+            if (_baited)
             {
                 dsc.Append(BlockEntityShelf.PerishableInfoCompact(Api, _inv[0], 0));
             }
@@ -438,10 +444,9 @@ namespace BearTrap.ModBlockEntity
                 {
                     texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
                 }
-
-                Vec3f meshRotationDeg = new Vec3f(0, RotationYDeg, 0);
+                
                 var block = Api.World.BlockAccessor.GetBlock(Pos);
-                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata, meshRotationDeg);
+                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata);
                 return meshdata;
             });
         }
