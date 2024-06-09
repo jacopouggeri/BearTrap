@@ -1,0 +1,10 @@
+{
+  ingredientPattern: "JSJ",
+  ingredients: {
+    "J": { type: "item", code: "beartrap:beartrapjaw-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "stainlesssteel"] },
+    "S": { type: "item", code: "game:metalnailsandstrips-*" }
+  },
+  width: 3,
+  height: 1,
+  output: { type: "block", code: "beartrap:beartrap-{metal}", quantity: 1  }
+}

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Cake.Common;
+using Cake.Common.Diagnostics;
 using Cake.Common.IO;
 using Cake.Common.Tools.DotNet;
 using Cake.Common.Tools.DotNet.Clean;
@@ -109,9 +110,18 @@ public sealed class PackageTask : FrostingTask<BuildContext>
         }
 
         context.CopyFile($"../{BuildContext.ProjectName}/modinfo.json", $"../Releases/{context.Name}/modinfo.json");
-        if (context.FileExists($"../{BuildContext.ProjectName}/modicon.png"))
+        string modIconPath = $"../{BuildContext.ProjectName}/modicon.png";
+        string destinationPath = $"../Releases/{context.Name}/modicon.png";
+
+        context.Information($"Checking if file exists at: {modIconPath}");
+        if (context.FileExists(modIconPath))
         {
-            context.CopyFile($"../{BuildContext.ProjectName}/modicon.png", $"../Releases/{context.Name}/modicon.png");
+            context.Information($"File exists. Copying to: {destinationPath}");
+            context.CopyFile(modIconPath, destinationPath);
+        }
+        else
+        {
+            context.Information($"File does not exist: {modIconPath}");
         }
 
         context.Zip($"../Releases/{context.Name}", $"../Releases/{context.Name}_{context.Version}.zip");

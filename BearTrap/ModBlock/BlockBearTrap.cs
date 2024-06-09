@@ -181,8 +181,6 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             if (be != null)
             {
-                api.Logger.Warning(be.TrapState.ToString());
-                api.Logger.Warning(be.Damage.ToString());
                 if (be.TrapState == EnumTrapState.Destroyed)
                 {
                     var itemCode = MetalVariant == "stainlesssteel" ? "ingot-stainlesssteel" : "metalbit-" + MetalVariant;
@@ -209,7 +207,6 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             if (be != null)
             {
-                api.Logger.Warning(decalTexSource.ToString());
                 blockModelData = be.GetCurrentMesh().Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
                 decalModelData = be.GetCurrentMesh(decalTexSource).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
 

@@ -124,13 +124,10 @@ namespace BearTrap.ModBlockEntity
             if (TrapState != EnumTrapState.Closed) return;
             foreach (var entity in LoadTrappedEntities())
             {
-                Api.Logger.Warning("Trapping entity");
-                Api.Logger.Warning("Entity: " + entity.Code);
                 if (!entity.Alive) {ReleaseTrappedEntity(); return;}
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
                 if (trappedPos.Equals(Pos))
                 {
-                    Api.Logger.Warning("Entity is trapped");
                     bool motionCheck;
                     if (entity is EntityPlayer player)
                     {
@@ -186,12 +183,10 @@ namespace BearTrap.ModBlockEntity
                 case EnumTrapState.Destroyed:
                     return true;
                 case EnumTrapState.Closed when player.Entity.Controls.Sneak:
-                    Api.Logger.Warning("Trying to open trap");
                     TrapState = EnumTrapState.Open;
                     return true;
                 // Damage players if they attempt to touch the trap without sneaking
                 case EnumTrapState.Open when !player.Entity.Controls.Sneak:
-                    Api.Logger.Warning("Player not sneaking");
                     DamageEntityPercent(player.Entity, SnapDamage);
                     TrapState = EnumTrapState.Closed;
                     return true;
@@ -199,13 +194,11 @@ namespace BearTrap.ModBlockEntity
                     TryReadyTrap(player);
                     return true;
                 case EnumTrapState.Baited when !player.Entity.Controls.Sneak:
-                    Api.Logger.Warning("Player not sneaking");
                     DamageEntityPercent(player.Entity, SnapDamage);
                     TrapState = EnumTrapState.Closed;
                     return true;
                 case EnumTrapState.Baited when _inv[0].Itemstack != null:
                 {
-                    Api.Logger.Warning("Trying to take bait");
                     if (!player.InventoryManager.TryGiveItemstack(_inv[0].Itemstack))
                     {
                         Api.World.SpawnItemEntity(_inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
@@ -234,7 +227,6 @@ namespace BearTrap.ModBlockEntity
         
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
-            Api.Logger.Warning("Suitable for? " + entity.Code);
             if (TrapState != EnumTrapState.Baited) return false;
             if (diet.FoodTags.Length == 0) return entity.IsCreature;
             bool dietMatches = diet.Matches(_inv[0].Itemstack);
@@ -252,8 +244,6 @@ namespace BearTrap.ModBlockEntity
             if (TrapState == EnumTrapState.Destroyed || TrapState == EnumTrapState.Closed) return;
             if (entity.IsCreature)
             {
-                Api.Logger.Notification("Snap!");
-                Api.Logger.Notification("Entity: " + entity.Code);
                 float trapChance = entity.Properties.Attributes["trapChance"].AsFloat();
                 if (Api.World.Rand.NextDouble() < Double.Max(1 - trapChance - 0.05, 0))
                 {
@@ -281,7 +271,6 @@ namespace BearTrap.ModBlockEntity
         
         private void DamageEntityPercent(Entity entity, float dmg)
         {
-            Api.Logger.Warning("Damaging entity by " + dmg/100);
             if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
             var damage = entity.GetBehavior<EntityBehaviorHealth>().MaxHealth * dmg/100f;
             bool shouldRelease = entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0 &&
@@ -299,7 +288,6 @@ namespace BearTrap.ModBlockEntity
 
         private void ReleaseTrappedEntity()
         {
-            Api.Logger.Warning("Releasing trapped entity");
             foreach (var entity in LoadTrappedEntities())
             {
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
