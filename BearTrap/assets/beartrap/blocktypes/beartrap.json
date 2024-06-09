@@ -48,8 +48,8 @@
       "stainlesssteel": 700
     },
     "shapeBy": {
-      "open": "beartrap:beartrap-open" ,
       "closed": "beartrap:beartrap-closed",
+      "open": "beartrap:beartrap-open" ,
       "destroyed": "game:block/reed/baskettrap-broke"
     }
   },

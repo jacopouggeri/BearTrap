@@ -57,7 +57,6 @@ namespace BearTrap.ModBlockEntity
         private float _rotationYDeg;
         private float[] _rotMat;
 
-
         public float RotationYDeg
         {
             get => _rotationYDeg;
@@ -90,6 +89,7 @@ namespace BearTrap.ModBlockEntity
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
+            
             _inv.LateInitialize("beartrap-" + Pos, api);
             
             Sapi = api as ICoreServerAPI;
@@ -367,11 +367,9 @@ namespace BearTrap.ModBlockEntity
         
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
-            
-            TrapState = (EnumTrapState)tree.GetInt("trapState");
             base.FromTreeAttributes(tree, worldForResolving);
+            TrapState = (EnumTrapState)tree.GetInt("trapState");
             RotationYDeg = tree.GetFloat("rotationYDeg");
-            MarkDirty();
             // Do this last
             RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
         }
@@ -432,15 +430,17 @@ namespace BearTrap.ModBlockEntity
         
         public MeshData GetOrCreateMesh(AssetLocation loc, ITexPositionSource texSource = null)
         {
-            return ObjectCacheUtil.GetOrCreate(Api, "bearTrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
+            return ObjectCacheUtil.GetOrCreate(Api, "beartrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
             {
                 var shape = Api.Assets.Get<Shape>(loc);
                 if (texSource == null)
                 {
                     texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
                 }
-
-                (Api as ICoreClientAPI).Tesselator.TesselateShape("bear trap decal", Api.Assets.Get<Shape>(loc), out var meshdata, texSource);
+                
+                var block = Api.World.BlockAccessor.GetBlock(Pos);
+                Vec3f meshRotationDeg = new Vec3f(0, _rotationYDeg, 0);
+                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, shape, out var meshdata, meshRotationDeg, 1, null);
                 return meshdata;
             });
         }
@@ -450,10 +450,10 @@ namespace BearTrap.ModBlockEntity
             return GetOrCreateMesh(GetCurrentShape(), texSource);
         }
         
-        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tesselator)
         {
-            bool skip = base.OnTesselation(mesher, tessThreadTesselator);
-            if (!skip) mesher.AddMeshData(GetCurrentMesh(this), _rotMat);
+            //mesher.AddMeshData(GetCurrentMesh(this));
+            base.OnTesselation(mesher, tesselator);
             return true;
         }
     }

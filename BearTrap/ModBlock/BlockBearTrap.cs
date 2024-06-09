@@ -72,13 +72,6 @@ namespace BearTrap.ModBlock
 
         public override bool DoPlaceBlock(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ItemStack byItemStack)
         {
-            // Check if the block below is solid
-            Block blockBelow = world.BlockAccessor.GetBlock(blockSel.Position.DownCopy());
-            if (!blockBelow.SideSolid[BlockFacing.UP.Index])
-            {
-                return false;
-            }
-            
             bool val = base.DoPlaceBlock(world, byPlayer, blockSel, byItemStack);
 
             if (val)
@@ -124,21 +117,6 @@ namespace BearTrap.ModBlock
             }
 
             return base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
-        }
-        
-        public override void GetDecal(IWorldAccessor world, BlockPos pos, ITexPositionSource decalTexSource, ref MeshData decalModelData, ref MeshData blockModelData)
-        {
-            var be = GetBlockEntity<BlockEntityBearTrap>(pos);
-            if (be != null)
-            {
-                blockModelData = be.GetCurrentMesh(be).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
-                decalModelData = be.GetCurrentMesh(decalTexSource).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
-
-                return;
-            }
-
-            base.GetDecal(world, pos, decalTexSource, ref decalModelData, ref blockModelData);
-
         }
     }
 }
