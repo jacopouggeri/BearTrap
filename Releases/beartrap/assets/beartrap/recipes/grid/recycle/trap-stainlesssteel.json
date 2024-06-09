@@ -1,11 +1,11 @@
 {
-  "ingredientPattern": "CT",
+  "ingredientPattern": "H,T",
   "recipeGroup": 1,
   "ingredients": {
-    "T": { "type": "block", "code": "beartrap:beartrap-*", "name": "metal", "allowedVariants": ["stainlesssteel"] },
-    "C": { "type": "item", "code": "hammer-*", "isTool": true, "toolDurabilityCost": 5 }
+    "H": { "type": "item", "code": "game:hammer-*", "isTool": true, "toolDurabilityCost": 10 },
+    "T": { "type": "block", "code": "beartrap:beartrap-*", "name": "metal", "allowedVariants": ["stainlesssteel"] }
   },
-  "width": 2,
-  "height": 1,
+  "width": 1,
+  "height": 2,
   "output": { "type": "item", "code": "game:ingot-{metal}", "quantity": 1  }
 }

@@ -2,10 +2,10 @@
   "ingredientPattern": "CJ",
   "recipeGroup": 1,
   "ingredients": {
-    "J": { "type": "item", "code": "beartrap:beartrapjaw-*", "name": "metal", "allowedVariants": ["stainlesssteel"] },
-    "C": { "type": "item", "code": "chisel-*", "isTool": true, "toolDurabilityCost": 5 }
+    "C": { "type": "item", "code": "game:chisel-*", "isTool": true, "toolDurabilityCost": 5 },
+    "J": { "type": "item", "code": "beartrap:beartrapjaw-*", "name": "metal", "allowedVariants": ["stainlesssteel"] }
   },
   "width": 2,
   "height": 1,
-  "output": { "type": "item", "code": "game:metalbits-steel", "quantity": 10  }
+  "output": { "type": "item", "code": "game:metalbit-steel", "quantity": 15  }
 }
