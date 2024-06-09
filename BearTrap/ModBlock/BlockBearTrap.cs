@@ -32,7 +32,14 @@ namespace BearTrap.ModBlock
                 {
                     interactions = interactions.Append(new WorldInteraction()
                     {
+                        HotKeyCode = "shift",
                         ActionLangCode = "blockhelp-beartrap-open",
+                        MouseButton = EnumMouseButton.Right,
+                        RequireFreeHand = true
+                    },
+                    new WorldInteraction()
+                    {
+                        ActionLangCode = "blockhelp-behavior-rightclickpickup",
                         MouseButton = EnumMouseButton.Right,
                         RequireFreeHand = true
                     });
@@ -53,7 +60,7 @@ namespace BearTrap.ModBlock
                     });
                 }
 
-                return base.GetPlacedBlockInteractionHelp(world, blockSel, forPlayer).Append(interactions);
+                return interactions;
             }
             return base.GetPlacedBlockInteractionHelp(world, blockSel, forPlayer);
         }
@@ -87,14 +94,11 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
             if (be != null)
             {
-                if (byPlayer.Entity.Controls.ShiftKey && be.TrapState == EnumTrapState.Closed)
+                if (!byPlayer.Entity.Controls.ShiftKey && be.TrapState == EnumTrapState.Closed)
                 {
                     return base.OnBlockInteractStart(world, byPlayer, blockSel);
                 }
-                else
-                {
-                    return be.Interact(byPlayer, blockSel);
-                }
+                return be.Interact(byPlayer, blockSel);
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }

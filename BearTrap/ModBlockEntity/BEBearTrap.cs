@@ -158,14 +158,23 @@ namespace BearTrap.ModBlockEntity
                 if (trappedPos.Equals(Pos))
                 {
                     Api.Logger.Warning("Entity is trapped");
-                    if (entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.2)
+                    var motionCheck = false;
+                    if (entity is EntityPlayer player)
+                    {
+                        motionCheck = player.Controls.TriesToMove;
+                    }
+                    else
+                    {
+                        motionCheck = entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.1;
+                    }
+                    if (motionCheck)
                     {
                         DamageEntityPercent(entity, SnapDamage*0.1f);
                         if (entity.HasBehavior<EntityBehaviorTiredness>())
                         {
                             entity.GetBehavior<EntityBehaviorTiredness>().Tiredness += 1.5f;
                         }
-                        Damage += 1;
+                        Damage += 0.5f;
                         if (Math.Abs(Damage - MaxDamage) < 0.001)
                         {
                             SetDestroyed();
@@ -202,7 +211,7 @@ namespace BearTrap.ModBlockEntity
             {
                 case EnumTrapState.Destroyed:
                     return true;
-                case EnumTrapState.Closed when !player.Entity.Controls.Sneak:
+                case EnumTrapState.Closed when player.Entity.Controls.Sneak:
                     Api.Logger.Warning("Trying to open trap");
                     TrapState = EnumTrapState.Open;
                     return true;
@@ -291,6 +300,7 @@ namespace BearTrap.ModBlockEntity
                 }
             }
             
+            Damage += 1;
             TrapState = EnumTrapState.Closed;
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
         }

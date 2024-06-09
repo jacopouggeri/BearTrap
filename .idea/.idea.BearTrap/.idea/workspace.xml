@@ -9,12 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Kinda working?">
-      <change afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrapFalse.cs" afterDir="false" />
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Working?">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,6 +86,8 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/f8/e3513ae5/ICoreAPI.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f4f0f8dbf5044cc9b54d09261e66625987e00/d6/5694afb6/Enumerable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/15f9da733c88dd854d1e5488f1fd410fef95b8c1cd76ec6784d25e82d2d1d12/JsonPropertyAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlock/BlockBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlock/BlockBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
@@ -96,6 +96,8 @@
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/assets/beartrap/blocktypes/beartrap.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/lang/en.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/shapes/beartrap-open.json" root0="FORCE_HIGHLIGHTING" />
@@ -334,7 +336,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717937679464</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Working?">
+      <option name="closed" value="true" />
+      <created>1717949232918</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1717949232918</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -358,6 +368,7 @@
     <MESSAGE value="Semi-working" />
     <MESSAGE value="More progress" />
     <MESSAGE value="Kinda working?" />
-    <option name="LAST_COMMIT_MESSAGE" value="Kinda working?" />
+    <MESSAGE value="Working?" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working?" />
   </component>
 </project>
