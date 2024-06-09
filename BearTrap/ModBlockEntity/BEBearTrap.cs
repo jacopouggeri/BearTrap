@@ -8,7 +8,6 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace BearTrap.ModBlockEntity
@@ -48,18 +47,18 @@ namespace BearTrap.ModBlockEntity
         private Dictionary<string, float> _durabilityByType;
 
         private Dictionary<string, float> _snapDamageByType;
-        
         private Dictionary<EnumTrapState, AssetLocation> _shapeByState;
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.25, 0.5);
         public string Type => _inv.Empty ? "nothing" : "food";
+        
+        float _rotationYDeg;
+        float[] _rotMat;
 
-        private float _rotationYDeg;
-        private float[] _rotMat;
 
         public float RotationYDeg
         {
-            get => _rotationYDeg;
+            get { return _rotationYDeg; }
             set { 
                 _rotationYDeg = value;
                 _rotMat = Matrixf.Create().Translate(0.5f, 0, 0.5f).RotateYDeg(_rotationYDeg - 90).Translate(-0.5f, 0, -0.5f).Values;
@@ -74,7 +73,7 @@ namespace BearTrap.ModBlockEntity
                 return block?.Variant["metal"];
             }
         }
-        
+
         public EnumTrapState TrapState;
         
         public float SnapDamage
@@ -89,7 +88,6 @@ namespace BearTrap.ModBlockEntity
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
-            
             _inv.LateInitialize("beartrap-" + Pos, api);
             
             Sapi = api as ICoreServerAPI;
@@ -233,7 +231,7 @@ namespace BearTrap.ModBlockEntity
 
         private void PickupBlock(IPlayer player)
         {
-            var stack = new ItemStack(Block);
+            var stack = new ItemStack(GetBlockForState(EnumTrapState.Closed.ToString()));
                     
             if (!player.InventoryManager.ActiveHotbarSlot.Empty) return;
             if (!player.InventoryManager.TryGiveItemstack(stack))
@@ -321,6 +319,21 @@ namespace BearTrap.ModBlockEntity
                 damage: damage);
             if (shouldRelease) ReleaseTrappedEntity();
         }
+        
+        public void ReplaceBlockWithState(string state)
+        {
+                Block newBlock = GetBlockForState(state);
+                Api.World.BlockAccessor.ExchangeBlock(newBlock.BlockId, Pos);
+                MarkDirty(true);
+        }
+        
+        public Block GetBlockForState(string state)
+        {
+            string metal = this.Block.Variant["metal"]; // get the current block's metal variant
+            string blockCodeString = $"beartrap:beartrap-{metal}-{state}";
+            AssetLocation blockCode = new AssetLocation(blockCodeString);
+            return Api.World.GetBlock(blockCode);
+        }
 
         private void ReleaseTrappedEntity()
         {
@@ -368,8 +381,9 @@ namespace BearTrap.ModBlockEntity
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
             base.FromTreeAttributes(tree, worldForResolving);
-            TrapState = (EnumTrapState)tree.GetInt("trapState");
             RotationYDeg = tree.GetFloat("rotationYDeg");
+            TrapState = (EnumTrapState)tree.GetInt("trapState");
+
             // Do this last
             RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
         }
@@ -378,9 +392,8 @@ namespace BearTrap.ModBlockEntity
         public override void ToTreeAttributes(ITreeAttribute tree)
         {
             base.ToTreeAttributes(tree);
-
-            tree.SetInt("trapState", (int)TrapState);
             tree.SetFloat("rotationYDeg", _rotationYDeg);
+            tree.SetInt("trapState", (int)TrapState);
         }
 
         
@@ -416,44 +429,36 @@ namespace BearTrap.ModBlockEntity
             return tfMatrices;
         }
         
-        public AssetLocation GetCurrentShape()
-        {
-            Api.Logger.Warning("Shape trap state: " + TrapState);
-            switch (TrapState)
-            {
-                case EnumTrapState.Closed: return _shapeByState.Get(EnumTrapState.Closed);
-                case EnumTrapState.Open: return _shapeByState.Get(EnumTrapState.Open);
-                case EnumTrapState.Destroyed: return _shapeByState.Get(EnumTrapState.Destroyed);
-                default: return _shapeByState.Get(EnumTrapState.Closed).Clone();
-            }
-        }
-        
         public MeshData GetOrCreateMesh(AssetLocation loc, ITexPositionSource texSource = null)
         {
-            return ObjectCacheUtil.GetOrCreate(Api, "beartrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
+            return ObjectCacheUtil.GetOrCreate(Api, "bearTrap-" + MetalVariant + loc + (texSource == null ? "-d" : "-t"), () =>
             {
                 var shape = Api.Assets.Get<Shape>(loc);
                 if (texSource == null)
                 {
                     texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
                 }
-                
+
+                Vec3f meshRotationDeg = new Vec3f(0, RotationYDeg, 0);
                 var block = Api.World.BlockAccessor.GetBlock(Pos);
-                Vec3f meshRotationDeg = new Vec3f(0, _rotationYDeg, 0);
-                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, shape, out var meshdata, meshRotationDeg, 1, null);
+                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata, meshRotationDeg);
                 return meshdata;
             });
         }
         
         public MeshData GetCurrentMesh(ITexPositionSource texSource = null)
         {
-            return GetOrCreateMesh(GetCurrentShape(), texSource);
+            return GetOrCreateMesh(_shapeByState[TrapState], texSource);
         }
         
-        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tesselator)
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
         {
-            //mesher.AddMeshData(GetCurrentMesh(this));
-            base.OnTesselation(mesher, tesselator);
+
+            bool skip = base.OnTesselation(mesher, tessThreadTesselator);
+            if (!skip)
+            {
+                mesher.AddMeshData(GetCurrentMesh(this), _rotMat);
+            }
             return true;
         }
     }
