@@ -8,6 +8,6 @@
     "description": "Tired of trapping bears into pits? Adds a bear trap to the game.",
     "version": "1.0.0",
     "dependencies": {
-        "game": ""
+        "game": "1.19.*"
     }
 }

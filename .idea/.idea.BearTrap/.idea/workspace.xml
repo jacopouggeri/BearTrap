@@ -9,12 +9,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Fixed dupe bug">
-      <change afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/shapes/beartrap-destroyed.json" afterDir="false" />
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/modinfo.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/modinfo.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +46,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/2f/4acd34c3/Dictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/cf/44453263/Enum.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3fd5caa198a84f679a3ae38dab101c25d2800/a9/6c88728d/ToolboxItemAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/0f/9ebde324/BlockEntityContainer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/16/60ae62db/BEBehaviorFruiting.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/1a/5e18b979/BlockSeashell.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/2b/cb3fe897/BlockEntityDisplay.cs" root0="SKIP_HIGHLIGHTING" />
@@ -74,11 +75,13 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/40/200ada0d/ArrayExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/56/7a053ae9/DamageSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/58/dc563859/EntityPlayer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/70/7a89e897/BlockEntityBehavior.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/7a/7a4d5185/TesselationMetaData.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/85/d9499cb7/Cuboidf.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/86/0138cf9f/ITesselatorManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/8c/92015201/CollectibleObject.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/8c/fef11913/Vec3d.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/94/8aef8cf9/ITreeAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/96/1dba3e3b/JsonObject.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/99/db02df1f/Block.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/9d/545831c3/IMountable.cs" root0="SKIP_HIGHLIGHTING" />
@@ -93,18 +96,6 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/f8/e3513ae5/ICoreAPI.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f4f0f8dbf5044cc9b54d09261e66625987e00/d6/5694afb6/Enumerable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/15f9da733c88dd854d1e5488f1fd410fef95b8c1cd76ec6784d25e82d2d1d12/JsonPropertyAttribute.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlock/BlockBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlock/BlockBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/ModBlockEntity/BEBearTrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/jacopouggeri/workspace/modding/VS/BearTrap/BearTrap/assets/beartrap/blocktypes/beartrap.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/lang/en.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/shapes/beartrap-open.json" root0="FORCE_HIGHLIGHTING" />
@@ -222,6 +213,7 @@
       <workItem from="1717845964220" duration="4369000" />
       <workItem from="1717850373225" duration="346000" />
       <workItem from="1717850735396" duration="29456000" />
+      <workItem from="1717954886867" duration="4545000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -375,7 +367,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717951849261</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Durability in stack">
+      <option name="closed" value="true" />
+      <created>1717954863634</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1717954863634</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -403,6 +403,7 @@
     <MESSAGE value="Remapped Controls, Fixed dupe bug" />
     <MESSAGE value="Remapped Controls" />
     <MESSAGE value="Fixed dupe bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed dupe bug" />
+    <MESSAGE value="Durability in stack" />
+    <option name="LAST_COMMIT_MESSAGE" value="Durability in stack" />
   </component>
 </project>

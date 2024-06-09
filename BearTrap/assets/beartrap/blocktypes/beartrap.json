@@ -38,14 +38,14 @@
       "iron": 17,
       "meteoriciron": 20,
       "steel": 25,
-      "stainlesssteel": 30
+      "stainlesssteel": 25
     },
     "durabilityBy": {
       "copper": 50,
       "tinbronze": 150,
       "bismuthbronze": 150,
-      "blackbronze": 200,
-      "iron": 350,
+      "blackbronze": 175,
+      "iron": 400,
       "meteoriciron": 400,
       "steel": 500,
       "stainlesssteel": 700

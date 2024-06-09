@@ -38,8 +38,7 @@ namespace BearTrap.ModBlockEntity
             get => _damage;
             set => _damage = Math.Min(value, MaxDamage); // Ensure Damage never exceeds MaxDamage
         }
-
-        private Dictionary<string, float> _snapDamageByType;
+        
         private Dictionary<EnumTrapState, AssetLocation> _shapeByState;
         
 
@@ -73,14 +72,7 @@ namespace BearTrap.ModBlockEntity
             }
         }
         
-        public float SnapDamage
-        {
-            get
-            {
-                _snapDamageByType.TryGetValue(MetalVariant, out var value);
-                return value != 0 ? value : 10;
-            }
-        }
+        public float SnapDamage => ((ModBlock.BearTrap)Block).SnapDamage;
         
         public BlockEntityBearTrap()
         {
@@ -97,9 +89,6 @@ namespace BearTrap.ModBlockEntity
             {
                 Sapi?.ModLoader.GetModSystem<POIRegistry>().AddPOI(this);
             }
-            
-            // Load the attribute dictionaries from the json
-            _snapDamageByType = Block.Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
             
             var shapeByStateString = Block.Attributes?["shapeBy"].AsObject<Dictionary<string, string>>();
             Dictionary<EnumTrapState, AssetLocation> shapeAssetLocations = new Dictionary<EnumTrapState, AssetLocation>();
@@ -184,6 +173,7 @@ namespace BearTrap.ModBlockEntity
         private void SetDestroyed()
         {
             TrapState = EnumTrapState.Destroyed;
+            Damage = MaxDamage;
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
             ReleaseTrappedEntity();

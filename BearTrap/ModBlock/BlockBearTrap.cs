@@ -17,6 +17,7 @@ namespace BearTrap.ModBlock
         private const float RotInterval = GameMath.PIHALF / 4;
         
         private Dictionary<string, int> _durabilityByType;
+        private Dictionary<string, float> _snapDamageByType;
         
         public string MetalVariant => Variant["metal"];
 
@@ -24,17 +25,34 @@ namespace BearTrap.ModBlock
         {
             get
             {
-                if (Attributes != null && _durabilityByType != null && _durabilityByType.TryGetValue(MetalVariant, out var value))
-                {
-                    return value != 0 ? value : 50;
-                }
-                return 50;
+                InitializeAttributes();
+                _durabilityByType.TryGetValue(MetalVariant, out var value);
+                return value != 0 ? value : 50;
+            }
+        }
+        
+        public float SnapDamage
+        {
+            get
+            {
+                InitializeAttributes();
+                _snapDamageByType.TryGetValue(MetalVariant, out var value);
+                return value != 0 ? value : 10;
             }
         }
 
         public BearTrap()
         {
+            // Load the attribute dictionaries from the json
+            _snapDamageByType = Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
             _durabilityByType = Attributes?["durabilityBy"].AsObject<Dictionary<string, int>>();
+        }
+        
+        private void InitializeAttributes()
+        {
+            if (Attributes == null) return;
+            _durabilityByType ??= Attributes?["durabilityBy"].AsObject<Dictionary<string, int>>();
+            _snapDamageByType ??= Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
         }
 
         public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
@@ -114,7 +132,7 @@ namespace BearTrap.ModBlock
 
                     be.RotationYDeg = roundRad * GameMath.RAD2DEG;
                     var stack = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack;
-                    be.Damage = stack.Attributes.GetInt("damage", be.Damage);
+                    be.Damage = MaxDamage - (int)stack.Attributes.GetDecimal("durability", GetMaxDurability(stack));
                     be.MarkDirty(true);
                 }
             }
@@ -127,7 +145,7 @@ namespace BearTrap.ModBlock
             if (be != null)
             {
                 var stack = new ItemStack(this);
-                stack.Attributes.SetInt("damage", be.Damage);
+                stack.Attributes.SetInt("durability", MaxDamage - be.Damage);
                 return stack;
             }
             return base.OnPickBlock(world, pos);
@@ -149,21 +167,38 @@ namespace BearTrap.ModBlock
 
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
-            float durability = MaxDamage - inSlot.Itemstack.Attributes.GetInt("damage");
-            float maxDurability = MaxDamage;
-
-            dsc.AppendLine("Durability: " + durability + "/" + maxDurability);
+            dsc.Append("Damage on snap: ").Append(SnapDamage).Append("%").Append('\n');
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
         }
-        
+
+        public override int GetMaxDurability(ItemStack itemstack)
+        {
+            return MaxDamage;
+        }
+
         public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
         {
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
-            if (be != null && be.TrapState == EnumTrapState.Destroyed)
+            if (be != null)
             {
-                var material = this.Variant["metal"];
-                api.Logger.Notification("Dropping bits of " + material + "!");
-                return new[] { new ItemStack(world.GetItem(new AssetLocation("game:item-metalbit-" + material)), 6 + world.Rand.Next(8)) };
+                api.Logger.Warning(be.TrapState.ToString());
+                api.Logger.Warning(be.Damage.ToString());
+                if (be.TrapState == EnumTrapState.Destroyed)
+                {
+                    var itemCode = MetalVariant == "stainlesssteel" ? "ingot-stainlesssteel" : "metalbit-" + MetalVariant;
+                    var quantity = MetalVariant == "stainlesssteel" ? 1 : 15 + world.Rand.Next(10);
+                    return new[]
+                    {
+                        new ItemStack(world.GetItem(new AssetLocation(itemCode)), quantity)
+                    };
+                }
+                
+                var stack = new ItemStack(this);
+                stack.Attributes.SetInt("durability", MaxDamage - be.Damage);
+                return new[]
+                {
+                    stack
+                };
             }
 
             return base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
