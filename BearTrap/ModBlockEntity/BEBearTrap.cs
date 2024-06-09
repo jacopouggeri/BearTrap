@@ -8,14 +8,15 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace BearTrap.ModBlockEntity
 {
     public enum EnumTrapState
     {
-        Open,
         Closed,
+        Open,
         Destroyed
     }
 
@@ -47,17 +48,19 @@ namespace BearTrap.ModBlockEntity
         private Dictionary<string, float> _durabilityByType;
 
         private Dictionary<string, float> _snapDamageByType;
+        
+        private Dictionary<EnumTrapState, AssetLocation> _shapeByState;
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.25, 0.5);
         public string Type => _inv.Empty ? "nothing" : "food";
-        
-        float _rotationYDeg;
-        float[] _rotMat;
+
+        private float _rotationYDeg;
+        private float[] _rotMat;
 
 
         public float RotationYDeg
         {
-            get { return _rotationYDeg; }
+            get => _rotationYDeg;
             set { 
                 _rotationYDeg = value;
                 _rotMat = Matrixf.Create().Translate(0.5f, 0, 0.5f).RotateYDeg(_rotationYDeg - 90).Translate(-0.5f, 0, -0.5f).Values;
@@ -73,19 +76,7 @@ namespace BearTrap.ModBlockEntity
             }
         }
         
-        public EnumTrapState TrapState
-        {
-            get
-            {
-                Block block = Block;
-                if (Enum.TryParse(block.Variant["state"], true, out EnumTrapState state))
-                {
-                    return state;
-                }
-                return default; // return a default value if the conversion fails
-            }
-            set => ReplaceBlockWithState(value.ToString());
-        }
+        public EnumTrapState TrapState;
         
         public float SnapDamage
         {
@@ -110,6 +101,22 @@ namespace BearTrap.ModBlockEntity
             // Load the attribute dictionaries from the json
             _durabilityByType = Block.Attributes?["durabilityBy"].AsObject<Dictionary<string, float>>();
             _snapDamageByType = Block.Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
+            
+            var shapeByStateString = Block.Attributes?["shapeBy"].AsObject<Dictionary<string, string>>();
+            Dictionary<EnumTrapState, AssetLocation> shapeAssetLocations = new Dictionary<EnumTrapState, AssetLocation>();
+
+            if (shapeByStateString != null)
+            {
+                foreach (var pair in shapeByStateString)
+                {
+                    if (Enum.TryParse(pair.Key, true, out EnumTrapState state))
+                    {
+                        shapeAssetLocations[state] = AssetLocation.Create(pair.Value, Block.Code.Domain).WithPathPrefixOnce("shapes/").WithPathAppendixOnce(".json");
+                    }
+                }
+            }
+
+            _shapeByState = shapeAssetLocations;
 
             Api.World.RegisterGameTickListener(this.TrapEntities, 10);
         }
@@ -226,7 +233,7 @@ namespace BearTrap.ModBlockEntity
 
         private void PickupBlock(IPlayer player)
         {
-            var stack = new ItemStack(GetBlockForState(EnumTrapState.Closed.ToString()));
+            var stack = new ItemStack(Block);
                     
             if (!player.InventoryManager.ActiveHotbarSlot.Empty) return;
             if (!player.InventoryManager.TryGiveItemstack(stack))
@@ -314,21 +321,6 @@ namespace BearTrap.ModBlockEntity
                 damage: damage);
             if (shouldRelease) ReleaseTrappedEntity();
         }
-        
-        public void ReplaceBlockWithState(string state)
-        {
-                Block newBlock = GetBlockForState(state);
-                Api.World.BlockAccessor.ExchangeBlock(newBlock.BlockId, Pos);
-                MarkDirty(true);
-        }
-        
-        public Block GetBlockForState(string state)
-        {
-            string metal = this.Block.Variant["metal"]; // get the current block's metal variant
-            string blockCodeString = $"beartrap:beartrap-{metal}-{state}";
-            AssetLocation blockCode = new AssetLocation(blockCodeString);
-            return Api.World.GetBlock(blockCode);
-        }
 
         private void ReleaseTrappedEntity()
         {
@@ -375,9 +367,11 @@ namespace BearTrap.ModBlockEntity
         
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
+            
+            TrapState = (EnumTrapState)tree.GetInt("trapState");
             base.FromTreeAttributes(tree, worldForResolving);
             RotationYDeg = tree.GetFloat("rotationYDeg");
-
+            MarkDirty();
             // Do this last
             RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
         }
@@ -386,6 +380,8 @@ namespace BearTrap.ModBlockEntity
         public override void ToTreeAttributes(ITreeAttribute tree)
         {
             base.ToTreeAttributes(tree);
+
+            tree.SetInt("trapState", (int)TrapState);
             tree.SetFloat("rotationYDeg", _rotationYDeg);
         }
 
@@ -422,9 +418,21 @@ namespace BearTrap.ModBlockEntity
             return tfMatrices;
         }
         
+        public AssetLocation GetCurrentShape()
+        {
+            Api.Logger.Warning("Shape trap state: " + TrapState);
+            switch (TrapState)
+            {
+                case EnumTrapState.Closed: return _shapeByState.Get(EnumTrapState.Closed);
+                case EnumTrapState.Open: return _shapeByState.Get(EnumTrapState.Open);
+                case EnumTrapState.Destroyed: return _shapeByState.Get(EnumTrapState.Destroyed);
+                default: return _shapeByState.Get(EnumTrapState.Closed).Clone();
+            }
+        }
+        
         public MeshData GetOrCreateMesh(AssetLocation loc, ITexPositionSource texSource = null)
         {
-            return ObjectCacheUtil.GetOrCreate(Api, "destroyedBearTrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
+            return ObjectCacheUtil.GetOrCreate(Api, "bearTrap-" + loc + (texSource == null ? "-d" : "-t"), () =>
             {
                 var shape = Api.Assets.Get<Shape>(loc);
                 if (texSource == null)
@@ -432,16 +440,20 @@ namespace BearTrap.ModBlockEntity
                     texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
                 }
 
-                ((ICoreClientAPI)Api).Tesselator.TesselateShape("bear trap decal", Api.Assets.Get<Shape>(loc), out var meshdata, texSource);
+                (Api as ICoreClientAPI).Tesselator.TesselateShape("bear trap decal", Api.Assets.Get<Shape>(loc), out var meshdata, texSource);
                 return meshdata;
             });
         }
         
+        public MeshData GetCurrentMesh(ITexPositionSource texSource = null)
+        {
+            return GetOrCreateMesh(GetCurrentShape(), texSource);
+        }
+        
         public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
         {
-
             bool skip = base.OnTesselation(mesher, tessThreadTesselator);
-            if (!skip) mesher.AddMeshData(capi.TesselatorManager.GetDefaultBlockMesh(Block), _rotMat);
+            if (!skip) mesher.AddMeshData(GetCurrentMesh(this), _rotMat);
             return true;
         }
     }

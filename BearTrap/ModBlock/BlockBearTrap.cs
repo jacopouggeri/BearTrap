@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using BearTrap.ModBlockEntity;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
-using Vintagestory.GameContent;
 using EnumTrapState = BearTrap.ModBlockEntity.EnumTrapState;
 
 namespace BearTrap.ModBlock
@@ -13,13 +13,7 @@ namespace BearTrap.ModBlock
 
     public class BearTrap : Block
     {
-        protected float rotInterval = GameMath.PIHALF / 4;
-
-        public override void OnEntityCollide(IWorldAccessor world, Entity entity, BlockPos pos, BlockFacing facing, Vec3d collideSpeed,
-            bool isImpact)
-        {
-            base.OnEntityCollide(world, entity, pos, facing, collideSpeed, isImpact);
-        }
+        private const float RotInterval = GameMath.PIHALF / 4;
 
         public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
         {
@@ -56,6 +50,20 @@ namespace BearTrap.ModBlock
                         RequireFreeHand = true
                     });
                 }
+                if (be.TrapState == EnumTrapState.Open)
+                {
+                    interactions = interactions.Append(new WorldInteraction()
+                    {
+                        ActionLangCode = "blockhelp-beartrap-bait",
+                        MouseButton = EnumMouseButton.Right,
+                        Itemstacks = Util.AssetUtils.GetItemStacks(world, new List<string>()
+                        {
+                            "game:redmeat-raw",
+                            "game:fish-raw",
+                            "game:bushmeat-raw",
+                        })
+                    });
+                }
 
                 return interactions;
             }
@@ -83,7 +91,7 @@ namespace BearTrap.ModBlock
                     double dz = (float)byPlayer.Entity.Pos.Z - (targetPos.Z + blockSel.HitPosition.Z);
                     float angleHor = (float)Math.Atan2(dx, dz);
 
-                    float roundRad = ((int)Math.Round(angleHor / rotInterval)) * rotInterval;
+                    float roundRad = ((int)Math.Round(angleHor / RotInterval)) * RotInterval;
 
                     be.RotationYDeg = roundRad * GameMath.RAD2DEG;
                     be.MarkDirty(true);
@@ -120,10 +128,12 @@ namespace BearTrap.ModBlock
         
         public override void GetDecal(IWorldAccessor world, BlockPos pos, ITexPositionSource decalTexSource, ref MeshData decalModelData, ref MeshData blockModelData)
         {
-            var be = GetBlockEntity<BlockEntityBasketTrap>(pos);
+            var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             if (be != null)
             {
-                blockModelData = be.GetCurrentMesh(null).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+                blockModelData = be.GetCurrentMesh(be).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+                decalModelData = be.GetCurrentMesh(decalTexSource).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+
                 return;
             }
 

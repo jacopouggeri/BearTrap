@@ -6,5 +6,5 @@
   },
   width: 3,
   height: 1,
-  output: { type: "block", code: "beartrap:beartrap-{metal}-closed", quantity: 1  }
+  output: { type: "block", code: "beartrap:beartrap-{metal}", quantity: 1  }
 }

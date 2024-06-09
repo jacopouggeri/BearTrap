@@ -9,10 +9,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Refined interactions">
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Placed bytype properties in json">
+      <change afterPath="$PROJECT_DIR$/BearTrap/Util/AssetUtils.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/itemtypes/beartrapjaw.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/itemtypes/beartrapjaw.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/lang/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/lang/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/recipes/grid/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/recipes/grid/beartrap.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/game/lang/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/game/lang/en.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,16 +38,20 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="noBehaviour" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/21f82f5bb7f14f84b700c07e682ac4a627d000/08/7464f871/TextureSource.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/21f82f5bb7f14f84b700c07e682ac4a627d000/65/2de403b9/BlockTextureAtlasManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/21f82f5bb7f14f84b700c07e682ac4a627d000/77/be057a9c/ShapeTesselator.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/2f/4acd34c3/Dictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/cf/44453263/Enum.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/16/60ae62db/BEBehaviorFruiting.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/2b/cb3fe897/BlockEntityDisplay.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/66/9a556cff/FruitingSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/a7/2962cca2/BlockPeatbrick.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/b8/5b49f5aa/BlockBehaviorRightClickPickup.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/c8/2de3c038/ShapeTextureSource.cs" root0="SKIP_HIGHLIGHTING" />
@@ -75,6 +85,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/f1/6da67d1d/ICoreAPICommon.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c1f9f1d656394ee5bb78c49d93c5e56f1c2400/f8/e3513ae5/ICoreAPI.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f4f0f8dbf5044cc9b54d09261e66625987e00/d6/5694afb6/Enumerable.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/15f9da733c88dd854d1e5488f1fd410fef95b8c1cd76ec6784d25e82d2d1d12/JsonPropertyAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/lang/en.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/BearTrap/assets/beartrap/shapes/beartrap-open.json" root0="FORCE_HIGHLIGHTING" />
@@ -95,31 +106,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.BearTrap Client.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.Conibear: Client.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Project.CakeBuild.executor&quot;: &quot;Run&quot;,
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;noBehaviour&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.BearTrap Client.executor": "Run",
+    ".NET Launch Settings Profile.Conibear: Client.executor": "Run",
+    ".NET Project.CakeBuild.executor": "Run",
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "attributeShapes",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;/Users/jacopouggeri/Library/Application Support/JetBrains/Rider2024.1/resharper-host/DecompilerCache&quot;,
-      &quot;/Users/jacopouggeri/Library/Application Support/JetBrains/Rider2024.1/resharper-host/SourcesCache&quot;,
-      &quot;/Users/jacopouggeri/Library/Application Support/Symbols/src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/Users/jacopouggeri/Library/Application Support/JetBrains/Rider2024.1/resharper-host/DecompilerCache",
+      "/Users/jacopouggeri/Library/Application Support/JetBrains/Rider2024.1/resharper-host/SourcesCache",
+      "/Users/jacopouggeri/Library/Application Support/Symbols/src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.BearTrap Client">
     <configuration name="CakeBuild" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/CakeBuild/bin/Debug/net7.0/CakeBuild" />
@@ -191,7 +202,7 @@
       <workItem from="1717844459066" duration="1171000" />
       <workItem from="1717845964220" duration="4369000" />
       <workItem from="1717850373225" duration="346000" />
-      <workItem from="1717850735396" duration="17202000" />
+      <workItem from="1717850735396" duration="24676000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -265,7 +276,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717884352154</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Placed bytype properties in json">
+      <option name="closed" value="true" />
+      <created>1717885665516</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1717885665516</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -284,6 +303,7 @@
     <MESSAGE value="Name refactor" />
     <MESSAGE value="Finish refactor, add beartrap jaw piece and crafting recipe" />
     <MESSAGE value="Refined interactions" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refined interactions" />
+    <MESSAGE value="Placed bytype properties in json" />
+    <option name="LAST_COMMIT_MESSAGE" value="Placed bytype properties in json" />
   </component>
 </project>

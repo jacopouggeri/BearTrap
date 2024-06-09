@@ -2,7 +2,7 @@
   "code": "beartrap",
   "class": "beartrap.beartrap",
   "entityclass": "beartrap.blockentitybeartrap",
-  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}],
+  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}, { "name": "UnstableFalling", "impactDamageMul": 1 }],
   "variantgroups": [
     {
       "code": "metal",
@@ -16,23 +16,14 @@
         "steel",
         "stainlesssteel"
       ]
-    },
-    {
-      "code": "state",
-      "states": [
-        "open",
-        "closed",
-        "destroyed"
-      ]
     }
   ],
   "creativeinventory": {
     "general": [
-      "*-closed"
+      "*"
     ],
     "decorative": [
-      "*-closed",
-      "*-destroyed"
+      "*"
     ]
   },
   "attributes": {
@@ -55,14 +46,15 @@
       "meteoriciron": 400,
       "steel": 500,
       "stainlesssteel": 700
+    },
+    "shapeBy": {
+      "open": "beartrap:beartrap-open" ,
+      "closed": "beartrap:beartrap-closed",
+      "destroyed": "game:block/reed/baskettrap-broke"
     }
   },
   "heldTpIdleAnimation": "holdunderarm",
-  "shapebytype": {
-    "*-open": { base: "beartrap:beartrap-open" },
-    "*-closed": { base: "beartrap:beartrap-closed" },
-    "*-destroyed": { base: "game:block/reed/baskettrap-broke" }
-  },
+  "shape": { base: "beartrap:beartrap-closed" },
   "blockmaterial": "Metal",
   "replaceable": 100,
   "resistance": 2,
