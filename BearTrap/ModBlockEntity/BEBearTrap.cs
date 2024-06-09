@@ -24,7 +24,7 @@ namespace BearTrap.ModBlockEntity
     {
         protected ICoreServerAPI Sapi;
 
-        InventoryGeneric _inv = new(1, null, null);
+        private InventoryGeneric _inv;
         public override InventoryBase Inventory => _inv;
         public override string InventoryClassName => "beartrap";
         public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
@@ -74,8 +74,19 @@ namespace BearTrap.ModBlockEntity
                 return block?.Variant["metal"];
             }
         }
+        
+        private EnumTrapState _trapState;
 
-        public EnumTrapState TrapState;
+        public EnumTrapState TrapState
+        {
+            get { return _trapState;}
+            set
+            {
+                _trapState = value;
+                if (value != EnumTrapState.Baited) _inv[0].Itemstack = null;
+                MarkDirty(true);
+            }
+        }
         
         public float SnapDamage
         {
@@ -84,6 +95,11 @@ namespace BearTrap.ModBlockEntity
                 _snapDamageByType.TryGetValue(MetalVariant, out var value);
                 return value != 0 ? value : 10;
             }
+        }
+        
+        public BlockEntityBearTrap()
+        {
+            _inv = new InventoryGeneric(1, null, null);
         }
 
         public override void Initialize(ICoreAPI api)
@@ -117,7 +133,7 @@ namespace BearTrap.ModBlockEntity
 
             _shapeByState = shapeAssetLocations;
 
-            Api.World.RegisterGameTickListener(this.TrapEntities, 5);
+            Api.World.RegisterGameTickListener(TrapEntities, 50);
         }
 
         private Entity[] LoadTrappedEntities()
@@ -157,7 +173,6 @@ namespace BearTrap.ModBlockEntity
                         }
                     }
                     
-                    
                     Vec3d direction = Pos.ToVec3d().Add(0.5, 0, 0.5).Add(entity.ServerPos.XYZ.Mul(-1));
                     double distance = direction.Length();
                     direction.Normalize();
@@ -176,7 +191,6 @@ namespace BearTrap.ModBlockEntity
         private void SetDestroyed()
         {
             TrapState = EnumTrapState.Destroyed;
-            MarkDirty(true);
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
             ReleaseTrappedEntity();
@@ -184,64 +198,41 @@ namespace BearTrap.ModBlockEntity
         
         public bool Interact(IPlayer player, BlockSelection blockSel)
         {
-            Api.Logger.Warning("Interacting with bear trap");
-            Api.Logger.Warning("Trap state: " + TrapState);
-            if (TrapState == EnumTrapState.Destroyed) return true;
-
-            if (TrapState == EnumTrapState.Closed)
+            switch (TrapState)
             {
-                if (player.Entity.Controls.Sneak)
-                {
+                case EnumTrapState.Destroyed:
+                    return true;
+                case EnumTrapState.Closed when !player.Entity.Controls.Sneak:
                     Api.Logger.Warning("Trying to open trap");
                     TrapState = EnumTrapState.Open;
-                    MarkDirty(true);
+                    return true;
+                // Damage players if they attempt to touch the trap without sneaking
+                case EnumTrapState.Open when !player.Entity.Controls.Sneak:
+                    Api.Logger.Warning("Player not sneaking");
+                    DamageEntityPercent(player.Entity, SnapDamage);
+                    TrapState = EnumTrapState.Closed;
+                    return true;
+                case EnumTrapState.Open when _inv[0].Empty:
+                    TryReadyTrap(player);
+                    return true;
+                case EnumTrapState.Baited when !player.Entity.Controls.Sneak:
+                    Api.Logger.Warning("Player not sneaking");
+                    DamageEntityPercent(player.Entity, SnapDamage);
+                    TrapState = EnumTrapState.Closed;
+                    return true;
+                case EnumTrapState.Baited when _inv[0].Itemstack != null:
+                {
+                    Api.Logger.Warning("Trying to take bait");
+                    if (!player.InventoryManager.TryGiveItemstack(_inv[0].Itemstack))
+                    {
+                        Api.World.SpawnItemEntity(_inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
+                    }
+                    TrapState = EnumTrapState.Open;
                     return true;
                 }
-
-                PickupBlock(player);
-                return true;
+                default:
+                    return false;
             }
-            
-            // Damage players if they attempt to touch the trap without sneaking
-            if (!player.Entity.Controls.Sneak)
-            {
-                Api.Logger.Warning("Player not sneaking");
-                DamageEntityPercent(player.Entity, 5);
-                TrapState = EnumTrapState.Closed;
-            }
-            
-            if (_inv[0].Empty)
-            {
-                Api.Logger.Warning("Trying to bait trap");
-                if (TrapState != EnumTrapState.Baited) TryReadyTrap(player);
-                else
-                {
-                    PickupBlock(player);
-                }
-            }
-            else
-            {
-                Api.Logger.Warning("Trying to take bait");
-                if (!player.InventoryManager.TryGiveItemstack(_inv[0].Itemstack))
-                {
-                    Api.World.SpawnItemEntity(_inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
-                }
-                Api.World.BlockAccessor.SetBlock(0, Pos);
-            }
-            return true;
-        }
-
-        private void PickupBlock(IPlayer player)
-        {
-            var stack = new ItemStack(GetBlockForState(EnumTrapState.Closed.ToString()));
-                    
-            if (!player.InventoryManager.ActiveHotbarSlot.Empty) return;
-            if (!player.InventoryManager.TryGiveItemstack(stack))
-            {
-                Api.World.SpawnItemEntity(stack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
-            }
-            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit2"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
-            Api.World.BlockAccessor.SetBlock(0, Pos);
         }
 
         private void TryReadyTrap(IPlayer player)
@@ -255,16 +246,16 @@ namespace BearTrap.ModBlockEntity
                 _inv[0].Itemstack = heldSlot.TakeOut(1);
                 TrapState = EnumTrapState.Baited;
                 heldSlot.MarkDirty();
-                MarkDirty(true);
             }
         }
-
+        
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
+            Api.Logger.Warning("Suitable for? " + entity.Code);
             if (TrapState != EnumTrapState.Baited) return false;
             if (diet.FoodTags.Length == 0) return entity.IsCreature;
             bool dietMatches = diet.Matches(_inv[0].Itemstack);
-            return  dietMatches;
+            return dietMatches;
         }
 
         public float ConsumeOnePortion(Entity entity)
@@ -275,12 +266,12 @@ namespace BearTrap.ModBlockEntity
 
         public void SnapClosed(Entity entity)
         {
-            if (TrapState != EnumTrapState.Open) return;
+            if (TrapState == EnumTrapState.Destroyed || TrapState == EnumTrapState.Closed) return;
             if (entity.IsCreature)
             {
                 Api.Logger.Notification("Snap!");
                 Api.Logger.Notification("Entity: " + entity.Code);
-                float trapChance = entity.Properties.Attributes["trapChance"].AsFloat(0.5f);
+                float trapChance = entity.Properties.Attributes["trapChance"].AsFloat(0);
                 if (Api.World.Rand.NextDouble() < Double.Max(1 - trapChance - 0.05, 0))
                 {
                     // Stop the entity from moving
@@ -301,12 +292,12 @@ namespace BearTrap.ModBlockEntity
             }
             
             TrapState = EnumTrapState.Closed;
-            MarkDirty(true);
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
         }
         
         private void DamageEntityPercent(Entity entity, float dmg)
         {
+            Api.Logger.Warning("Damaging entity by " + dmg/100);
             if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
             var damage = entity.GetBehavior<EntityBehaviorHealth>().MaxHealth * dmg/100f;
             bool shouldRelease = entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0 &&
@@ -332,7 +323,7 @@ namespace BearTrap.ModBlockEntity
         public Block GetBlockForState(string state)
         {
             string metal = this.Block.Variant["metal"]; // get the current block's metal variant
-            string blockCodeString = $"beartrap:beartrap-{metal}-{state}";
+            string blockCodeString = $"beartrap:beartrap-{metal}";
             AssetLocation blockCode = new AssetLocation(blockCodeString);
             return Api.World.GetBlock(blockCode);
         }
@@ -444,7 +435,6 @@ namespace BearTrap.ModBlockEntity
                 var block = Api.World.BlockAccessor.GetBlock(Pos);
                 ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata);
                 return meshdata;
-                //.Rotate(new Vec3f(0.5f, 0, 0.5f), 0, RotationYDeg, 0);
             });
         }
         

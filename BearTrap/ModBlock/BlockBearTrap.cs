@@ -18,11 +18,7 @@ namespace BearTrap.ModBlock
         public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
         {
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
-            if (be != null &&
-                be.TrapState == EnumTrapState.Open)
-            {
-                be.SnapClosed(entity);
-            }
+            be?.SnapClosed(entity);
             base.OnEntityInside(world, entity, pos);
         }
 
@@ -36,14 +32,7 @@ namespace BearTrap.ModBlock
                 {
                     interactions = interactions.Append(new WorldInteraction()
                     {
-                        HotKeyCode = "shift",
                         ActionLangCode = "blockhelp-beartrap-open",
-                        MouseButton = EnumMouseButton.Right,
-                        RequireFreeHand = true
-                    },
-                    new WorldInteraction()
-                    {
-                        ActionLangCode = "blockhelp-behavior-rightclickpickup",
                         MouseButton = EnumMouseButton.Right,
                         RequireFreeHand = true
                     });
@@ -64,7 +53,7 @@ namespace BearTrap.ModBlock
                     });
                 }
 
-                return interactions;
+                return base.GetPlacedBlockInteractionHelp(world, blockSel, forPlayer).Append(interactions);
             }
             return base.GetPlacedBlockInteractionHelp(world, blockSel, forPlayer);
         }
@@ -93,15 +82,20 @@ namespace BearTrap.ModBlock
             return val;
         }
 
-        public override Cuboidf[] GetCollisionBoxes(IBlockAccessor blockAccessor, BlockPos pos)
-        {
-            return new[] { new Cuboidf(0, 0, 0, 0.1, 0, 1) };
-        }
-
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
         {
             var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
-            if (be != null) return be.Interact(byPlayer, blockSel) && base.OnBlockInteractStart(world, byPlayer, blockSel);
+            if (be != null)
+            {
+                if (byPlayer.Entity.Controls.ShiftKey && be.TrapState == EnumTrapState.Closed)
+                {
+                    return base.OnBlockInteractStart(world, byPlayer, blockSel);
+                }
+                else
+                {
+                    return be.Interact(byPlayer, blockSel);
+                }
+            }
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
 
@@ -116,6 +110,22 @@ namespace BearTrap.ModBlock
             }
 
             return base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
+        }
+        
+        public override void GetDecal(IWorldAccessor world, BlockPos pos, ITexPositionSource decalTexSource, ref MeshData decalModelData, ref MeshData blockModelData)
+        {
+            var be = GetBlockEntity<BlockEntityBearTrap>(pos);
+            if (be != null)
+            {
+                api.Logger.Warning(decalTexSource.ToString());
+                blockModelData = be.GetCurrentMesh(null).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+                decalModelData = be.GetCurrentMesh(decalTexSource).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+
+                return;
+            }
+
+            base.GetDecal(world, pos, decalTexSource, ref decalModelData, ref blockModelData);
+
         }
     }
 }

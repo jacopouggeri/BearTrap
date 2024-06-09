@@ -2,7 +2,11 @@
   "code": "beartrap",
   "class": "beartrap.beartrap",
   "entityclass": "beartrap.blockentitybeartrap",
-  "behaviors": [{"name": "Lockable" }, {"name": "BreakIfFloating"}, { "name": "UnstableFalling", "impactDamageMul": 1 }],
+  "behaviors": [{"name": "Lockable" },
+    {"name": "BreakIfFloating"},
+    { "name": "UnstableFalling", "impactDamageMul": 1 },
+    { "name": "RightClickPickup", "properties": { "dropsPickupMode": true, "sound": "game:sounds/effect/anvilhit2" } }
+  ],
   "variantgroups": [
     {
       "code": "metal",
@@ -28,14 +32,14 @@
   },
   "attributes": {
     "snapdamageBy": {
-      "copper": 50,
-      "tinbronze": 150,
-      "bismuthbronze": 150,
-      "blackbronze": 200,
-      "iron": 350,
-      "meteoriciron": 400,
-      "steel": 500,
-      "stainlesssteel": 700
+      "copper": 7,
+      "tinbronze": 10,
+      "bismuthbronze": 10,
+      "blackbronze": 12,
+      "iron": 17,
+      "meteoriciron": 20,
+      "steel": 25,
+      "stainlesssteel": 30
     },
     "durabilityBy": {
       "copper": 50,
@@ -56,7 +60,7 @@
   "heldTpIdleAnimation": "holdunderarm",
   "shape": { base: "beartrap:beartrap-closed" },
   "blockmaterial": "Metal",
-  "replaceable": 100,
+  "replaceable": 900,
   "resistance": 2,
   "lightAbsorption": 0,
   "maxStackSize": 1,
@@ -79,16 +83,16 @@
     y1: 0,
     z1: 0.125,
     x2: 0.8125,
-    y2: 0.5625,
-    z2: 0.875
+    y2: 0.05,
+    z2: 0.8125
   },
   selectionbox: {
     x1: 0.125,
     y1: 0,
     z1: 0.125,
     x2: 0.8125,
-    y2: 0.5625,
-    z2: 0.875
+    y2: 0.4,
+    z2: 0.8125
   },
   "sounds": {
     "place": "game:block/ingot",
