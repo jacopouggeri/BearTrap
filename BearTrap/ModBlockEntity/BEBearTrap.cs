@@ -29,33 +29,25 @@ namespace BearTrap.ModBlockEntity
         public override string InventoryClassName => "beartrap";
         public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
+        
+        private int MaxDamage => ((ModBlock.BearTrap)Block).MaxDamage;
 
-        private float MaxDamage
-        { 
-            get
-            {
-                _durabilityByType.TryGetValue(MetalVariant, out var value);
-                return value != 0 ? value : 50;
-            }
-        }
-
-        private float _damage;
-        private float Damage 
+        private int _damage;
+        public int Damage 
         { 
             get => _damage;
             set => _damage = Math.Min(value, MaxDamage); // Ensure Damage never exceeds MaxDamage
         }
-        private Dictionary<string, float> _durabilityByType;
 
         private Dictionary<string, float> _snapDamageByType;
         private Dictionary<EnumTrapState, AssetLocation> _shapeByState;
+        
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.25, 0.5);
         public string Type => _inv.Empty ? "nothing" : "food";
         
         float _rotationYDeg;
         float[] _rotMat;
-
 
         public float RotationYDeg
         {
@@ -66,15 +58,8 @@ namespace BearTrap.ModBlockEntity
             }
         }
 
-        public string MetalVariant
-        {
-            get
-            {
-                Block block = Block;
-                return block?.Variant["metal"];
-            }
-        }
-        
+        public string MetalVariant => ((ModBlock.BearTrap)Block).MetalVariant;
+
         private EnumTrapState _trapState;
 
         public EnumTrapState TrapState
@@ -114,7 +99,6 @@ namespace BearTrap.ModBlockEntity
             }
             
             // Load the attribute dictionaries from the json
-            _durabilityByType = Block.Attributes?["durabilityBy"].AsObject<Dictionary<string, float>>();
             _snapDamageByType = Block.Attributes?["snapDamageBy"].AsObject<Dictionary<string, float>>();
             
             var shapeByStateString = Block.Attributes?["shapeBy"].AsObject<Dictionary<string, string>>();
@@ -158,7 +142,7 @@ namespace BearTrap.ModBlockEntity
                 if (trappedPos.Equals(Pos))
                 {
                     Api.Logger.Warning("Entity is trapped");
-                    var motionCheck = false;
+                    bool motionCheck;
                     if (entity is EntityPlayer player)
                     {
                         motionCheck = player.Controls.TriesToMove;
@@ -172,9 +156,9 @@ namespace BearTrap.ModBlockEntity
                         DamageEntityPercent(entity, SnapDamage*0.1f);
                         if (entity.HasBehavior<EntityBehaviorTiredness>())
                         {
-                            entity.GetBehavior<EntityBehaviorTiredness>().Tiredness += 1.5f;
+                            entity.GetBehavior<EntityBehaviorTiredness>().Tiredness += 5f;
                         }
-                        Damage += 0.5f;
+                        Damage += 1;
                         if (Math.Abs(Damage - MaxDamage) < 0.001)
                         {
                             SetDestroyed();
@@ -280,7 +264,7 @@ namespace BearTrap.ModBlockEntity
             {
                 Api.Logger.Notification("Snap!");
                 Api.Logger.Notification("Entity: " + entity.Code);
-                float trapChance = entity.Properties.Attributes["trapChance"].AsFloat(0);
+                float trapChance = entity.Properties.Attributes["trapChance"].AsFloat();
                 if (Api.World.Rand.NextDouble() < Double.Max(1 - trapChance - 0.05, 0))
                 {
                     // Stop the entity from moving
@@ -321,21 +305,6 @@ namespace BearTrap.ModBlockEntity
                 },
                 damage: damage);
             if (shouldRelease) ReleaseTrappedEntity();
-        }
-        
-        public void ReplaceBlockWithState(string state)
-        {
-                Block newBlock = GetBlockForState(state);
-                Api.World.BlockAccessor.ExchangeBlock(newBlock.BlockId, Pos);
-                MarkDirty(true);
-        }
-        
-        public Block GetBlockForState(string state)
-        {
-            string metal = this.Block.Variant["metal"]; // get the current block's metal variant
-            string blockCodeString = $"beartrap:beartrap-{metal}";
-            AssetLocation blockCode = new AssetLocation(blockCodeString);
-            return Api.World.GetBlock(blockCode);
         }
 
         private void ReleaseTrappedEntity()
@@ -404,7 +373,7 @@ namespace BearTrap.ModBlockEntity
         {
             if (TrapState == EnumTrapState.Destroyed)
             {
-                dsc.Append("This trap was destroyed\n");
+                dsc.Append("This trap was destroyed after prolonged use\n");
                 return;
             }
             dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");

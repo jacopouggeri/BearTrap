@@ -53,11 +53,11 @@
     "shapeBy": {
       "closed": "beartrap:beartrap-closed",
       "open": "beartrap:beartrap-open" ,
-      "destroyed": "game:block/metal/metalparts/scraps"
+      "destroyed": "beartrap:beartrap-destroyed"
     }
   },
   "heldTpIdleAnimation": "holdunderarm",
-  "shape": { base: "beartrap:beartrap-closed" },
+  "shape": { "base": "beartrap:beartrap-closed" },
   "blockmaterial": "Metal",
   "replaceable": 900,
   "resistance": 2,

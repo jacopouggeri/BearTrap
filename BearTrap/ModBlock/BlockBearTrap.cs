@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using BearTrap.ModBlockEntity;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -14,6 +15,27 @@ namespace BearTrap.ModBlock
     public class BearTrap : Block
     {
         private const float RotInterval = GameMath.PIHALF / 4;
+        
+        private Dictionary<string, int> _durabilityByType;
+        
+        public string MetalVariant => Variant["metal"];
+
+        public int MaxDamage
+        {
+            get
+            {
+                if (Attributes != null && _durabilityByType != null && _durabilityByType.TryGetValue(MetalVariant, out var value))
+                {
+                    return value != 0 ? value : 50;
+                }
+                return 50;
+            }
+        }
+
+        public BearTrap()
+        {
+            _durabilityByType = Attributes?["durabilityBy"].AsObject<Dictionary<string, int>>();
+        }
 
         public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
         {
@@ -91,10 +113,24 @@ namespace BearTrap.ModBlock
                     float roundRad = ((int)Math.Round(angleHor / RotInterval)) * RotInterval;
 
                     be.RotationYDeg = roundRad * GameMath.RAD2DEG;
+                    var stack = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack;
+                    be.Damage = stack.Attributes.GetInt("damage", be.Damage);
                     be.MarkDirty(true);
                 }
             }
             return val;
+        }
+        
+        public override ItemStack OnPickBlock(IWorldAccessor world, BlockPos pos)
+        {
+            var be = world.BlockAccessor.GetBlockEntity<BlockEntityBearTrap>(pos);
+            if (be != null)
+            {
+                var stack = new ItemStack(this);
+                stack.Attributes.SetInt("damage", be.Damage);
+                return stack;
+            }
+            return base.OnPickBlock(world, pos);
         }
 
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
@@ -111,6 +147,15 @@ namespace BearTrap.ModBlock
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
 
+        public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        {
+            float durability = MaxDamage - inSlot.Itemstack.Attributes.GetInt("damage");
+            float maxDurability = MaxDamage;
+
+            dsc.AppendLine("Durability: " + durability + "/" + maxDurability);
+            base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
+        }
+        
         public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
         {
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
@@ -130,7 +175,7 @@ namespace BearTrap.ModBlock
             if (be != null)
             {
                 api.Logger.Warning(decalTexSource.ToString());
-                blockModelData = be.GetCurrentMesh(null).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
+                blockModelData = be.GetCurrentMesh().Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
                 decalModelData = be.GetCurrentMesh(decalTexSource).Clone().Rotate(Vec3f.Half, 0, (be.RotationYDeg-90) * GameMath.DEG2RAD, 0);
 
                 return;
