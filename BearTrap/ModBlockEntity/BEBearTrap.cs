@@ -16,6 +16,7 @@ namespace BearTrap.ModBlockEntity
     {
         Closed,
         Open,
+        Baited,
         Destroyed
     }
 
@@ -26,15 +27,9 @@ namespace BearTrap.ModBlockEntity
         InventoryGeneric _inv = new(1, null, null);
         public override InventoryBase Inventory => _inv;
         public override string InventoryClassName => "beartrap";
-        public override int DisplayedItems => _baited ? 1 : 0;
+        public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
-        private Boolean _baited;
 
-        public Boolean Baited
-        {
-            get { return _baited; }
-            set { _baited = value; }
-        }
         private float MaxDamage
         { 
             get
@@ -122,7 +117,7 @@ namespace BearTrap.ModBlockEntity
 
             _shapeByState = shapeAssetLocations;
 
-            Api.World.RegisterGameTickListener(this.TrapEntities, 10);
+            Api.World.RegisterGameTickListener(this.TrapEntities, 5);
         }
 
         private Entity[] LoadTrappedEntities()
@@ -146,6 +141,7 @@ namespace BearTrap.ModBlockEntity
                 var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
                 if (trappedPos.Equals(Pos))
                 {
+                    Api.Logger.Warning("Entity is trapped");
                     if (entity.ServerPos.Motion.Length() > 0.01 && Api.World.Rand.NextDouble() < 0.2)
                     {
                         DamageEntityPercent(entity, SnapDamage*0.1f);
@@ -217,7 +213,7 @@ namespace BearTrap.ModBlockEntity
             if (_inv[0].Empty)
             {
                 Api.Logger.Warning("Trying to bait trap");
-                if (!_baited) TryReadyTrap(player);
+                if (TrapState != EnumTrapState.Baited) TryReadyTrap(player);
                 else
                 {
                     PickupBlock(player);
@@ -257,7 +253,7 @@ namespace BearTrap.ModBlockEntity
             if (!heldSlot.Empty && (collobj.NutritionProps != null || collobj.Attributes?["foodTags"].Exists == true))
             {
                 _inv[0].Itemstack = heldSlot.TakeOut(1);
-                _baited = true;
+                TrapState = EnumTrapState.Baited;
                 heldSlot.MarkDirty();
                 MarkDirty(true);
             }
@@ -265,7 +261,7 @@ namespace BearTrap.ModBlockEntity
 
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
-            if (!_baited) return false;
+            if (TrapState != EnumTrapState.Baited) return false;
             if (diet.FoodTags.Length == 0) return entity.IsCreature;
             bool dietMatches = diet.Matches(_inv[0].Itemstack);
             return  dietMatches;
@@ -411,7 +407,7 @@ namespace BearTrap.ModBlockEntity
                 return;
             }
             dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");
-            if (_baited)
+            if (TrapState == EnumTrapState.Baited)
             {
                 dsc.Append(BlockEntityShelf.PerishableInfoCompact(Api, _inv[0], 0));
             }
@@ -448,11 +444,13 @@ namespace BearTrap.ModBlockEntity
                 var block = Api.World.BlockAccessor.GetBlock(Pos);
                 ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata);
                 return meshdata;
+                //.Rotate(new Vec3f(0.5f, 0, 0.5f), 0, RotationYDeg, 0);
             });
         }
         
         public MeshData GetCurrentMesh(ITexPositionSource texSource = null)
         {
+            if (TrapState == EnumTrapState.Baited) return GetOrCreateMesh(_shapeByState[EnumTrapState.Open], texSource);
             return GetOrCreateMesh(_shapeByState[TrapState], texSource);
         }
         
