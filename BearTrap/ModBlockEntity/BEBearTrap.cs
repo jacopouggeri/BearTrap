@@ -26,9 +26,9 @@ namespace BearTrap.ModBlockEntity
         InventoryGeneric _inv = new(1, null, null);
         public override InventoryBase Inventory => _inv;
         public override string InventoryClassName => "beartrap";
-        public override int DisplayedItems => _baited ? 1 : 0;
+        public override int DisplayedItems => HasBait ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
-        private Boolean _baited;
+        public Boolean HasBait;
         private float MaxDamage
         { 
             get
@@ -211,7 +211,7 @@ namespace BearTrap.ModBlockEntity
             if (_inv[0].Empty)
             {
                 Api.Logger.Warning("Trying to bait trap");
-                if (!_baited) TryReadyTrap(player);
+                if (!HasBait) TryReadyTrap(player);
                 else
                 {
                     PickupBlock(player);
@@ -251,7 +251,7 @@ namespace BearTrap.ModBlockEntity
             if (!heldSlot.Empty && (collobj.NutritionProps != null || collobj.Attributes?["foodTags"].Exists == true))
             {
                 _inv[0].Itemstack = heldSlot.TakeOut(1);
-                _baited = true;
+                HasBait = true;
                 heldSlot.MarkDirty();
                 MarkDirty(true);
             }
@@ -259,7 +259,7 @@ namespace BearTrap.ModBlockEntity
 
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
-            if (!_baited) return false;
+            if (!HasBait) return false;
             if (diet.FoodTags.Length == 0) return entity.IsCreature;
             bool dietMatches = diet.Matches(_inv[0].Itemstack);
             return  dietMatches;
@@ -405,7 +405,7 @@ namespace BearTrap.ModBlockEntity
                 return;
             }
             dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");
-            if (_baited)
+            if (HasBait)
             {
                 dsc.Append(BlockEntityShelf.PerishableInfoCompact(Api, _inv[0], 0));
             }

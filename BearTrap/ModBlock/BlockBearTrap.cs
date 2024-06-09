@@ -31,15 +31,7 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
             if (be != null)
             {
-                WorldInteraction[] interactions = new WorldInteraction[]
-                {
-                    new WorldInteraction()
-                    {
-                        ActionLangCode = "blockhelp-behavior-rightclickpickup",
-                        MouseButton = EnumMouseButton.Right,
-                        RequireFreeHand = true
-                    }
-                };
+                WorldInteraction[] interactions = new WorldInteraction[0];
                 if (be.TrapState == EnumTrapState.Closed)
                 {
                     interactions = interactions.Append(new WorldInteraction()
@@ -48,12 +40,19 @@ namespace BearTrap.ModBlock
                         ActionLangCode = "blockhelp-beartrap-open",
                         MouseButton = EnumMouseButton.Right,
                         RequireFreeHand = true
+                    },
+                    new WorldInteraction()
+                    {
+                        ActionLangCode = "blockhelp-behavior-rightclickpickup",
+                        MouseButton = EnumMouseButton.Right,
+                        RequireFreeHand = true
                     });
                 }
-                if (be.TrapState == EnumTrapState.Open)
+                if (be.TrapState == EnumTrapState.Open && !be.HasBait)
                 {
                     interactions = interactions.Append(new WorldInteraction()
                     {
+                        HotKeyCode = "shift",
                         ActionLangCode = "blockhelp-beartrap-bait",
                         MouseButton = EnumMouseButton.Right,
                         Itemstacks = Util.AssetUtils.GetItemStacks(world, new List<string>()
