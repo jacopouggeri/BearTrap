@@ -9,29 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Polished up">
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/itemtypes/beartrapjaw.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/lang/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/patches/bear-seekfood.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/recipes/grid/beartrap.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/recipes/smithing/beartrapjaw-2.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/recipes/smithing/beartrapjaw.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/shapes/beartrap-closed.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/shapes/beartrap-destroyed.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/shapes/beartrap-open.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/beartrap/shapes/beartrapjaw.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/assets/game/lang/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/modicon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap/modinfo.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Releases/beartrap_1.0.0.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/modicon.png" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/modicon.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/modinfo.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/modinfo.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CakeBuild/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CakeBuild/Program.cs" afterDir="false" />
-    </list>
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Added jaw recycle recipe" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -229,7 +207,7 @@
       <workItem from="1717845964220" duration="4369000" />
       <workItem from="1717850373225" duration="346000" />
       <workItem from="1717850735396" duration="29456000" />
-      <workItem from="1717954886867" duration="5248000" />
+      <workItem from="1717954886867" duration="6421000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -399,7 +377,31 @@
       <option name="project" value="LOCAL" />
       <updated>1717960102016</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Finalised for release">
+      <option name="closed" value="true" />
+      <created>1717961013915</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1717961013915</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Added jaw recycle recipe">
+      <option name="closed" value="true" />
+      <created>1717961678302</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1717961678302</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Added jaw recycle recipe">
+      <option name="closed" value="true" />
+      <created>1717961694922</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1717961694922</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -429,6 +431,8 @@
     <MESSAGE value="Fixed dupe bug" />
     <MESSAGE value="Durability in stack" />
     <MESSAGE value="Polished up" />
-    <option name="LAST_COMMIT_MESSAGE" value="Polished up" />
+    <MESSAGE value="Finalised for release" />
+    <MESSAGE value="Added jaw recycle recipe" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added jaw recycle recipe" />
   </component>
 </project>
