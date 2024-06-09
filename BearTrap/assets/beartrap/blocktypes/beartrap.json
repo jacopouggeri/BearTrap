@@ -2,10 +2,9 @@
   "code": "beartrap",
   "class": "beartrap.beartrap",
   "entityclass": "beartrap.blockentitybeartrap",
-  "behaviors": [{"name": "Lockable" },
-    {"name": "BreakIfFloating"},
-    { "name": "UnstableFalling", "impactDamageMul": 1 },
-    { "name": "RightClickPickup", "properties": { "dropsPickupMode": true, "sound": "game:sounds/effect/anvilhit2" } }
+  "behaviors": [
+    { "name": "UnstableFalling"},
+    { "name": "RightClickPickup", "properties": { "sound": "game:sounds/effect/anvilhit2" } }
   ],
   "variantgroups": [
     {
@@ -54,7 +53,7 @@
     "shapeBy": {
       "closed": "beartrap:beartrap-closed",
       "open": "beartrap:beartrap-open" ,
-      "destroyed": "game:block/reed/baskettrap-broke"
+      "destroyed": "game:block/metal/metalparts/scraps"
     }
   },
   "heldTpIdleAnimation": "holdunderarm",

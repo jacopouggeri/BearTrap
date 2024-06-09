@@ -27,7 +27,7 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
             if (be != null)
             {
-                WorldInteraction[] interactions = new WorldInteraction[0];
+                WorldInteraction[] interactions = Array.Empty<WorldInteraction>();
                 if (be.TrapState == EnumTrapState.Closed)
                 {
                     interactions = interactions.Append(new WorldInteraction()
@@ -44,7 +44,7 @@ namespace BearTrap.ModBlock
                         RequireFreeHand = true
                     });
                 }
-                if (be.TrapState == EnumTrapState.Open)
+                else if (be.TrapState == EnumTrapState.Open)
                 {
                     interactions = interactions.Append(new WorldInteraction()
                     {
@@ -57,6 +57,15 @@ namespace BearTrap.ModBlock
                             "game:fish-raw",
                             "game:bushmeat-raw",
                         })
+                    });
+                } else if (be.TrapState == EnumTrapState.Baited)
+                {
+                    interactions = interactions.Append(new WorldInteraction()
+                    {
+                        HotKeyCode = "shift",
+                        ActionLangCode = "blockhelp-beartrap-pickbait",
+                        MouseButton = EnumMouseButton.Right,
+                        RequireFreeHand = true
                     });
                 }
 
@@ -85,7 +94,6 @@ namespace BearTrap.ModBlock
                     be.MarkDirty(true);
                 }
             }
-
             return val;
         }
 

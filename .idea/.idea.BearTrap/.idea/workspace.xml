@@ -9,10 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Working?">
+    <list default="true" id="641d190d-b766-4b5a-a22c-e9f5472ccd9b" name="Changes" comment="Remapped Controls">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BearTrap/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlock/BlockBearTrap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/ModBlockEntity/BEBearTrap.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/beartrap/blocktypes/beartrap.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BearTrap/assets/game/lang/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/BearTrap/assets/game/lang/en.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +45,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/2f/4acd34c3/Dictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3442bdbe7a07406dbd4e05fe7357d408c40e00/cf/44453263/Enum.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/16/60ae62db/BEBehaviorFruiting.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/1a/5e18b979/BlockSeashell.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/2b/cb3fe897/BlockEntityDisplay.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/66/9a556cff/FruitingSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/542ba26bb8aa4ea49b5afc99fb8541f2246200/88/3c56bbb9/BlockEntityBasketTrap.cs" root0="SKIP_HIGHLIGHTING" />
@@ -344,7 +346,23 @@
       <option name="project" value="LOCAL" />
       <updated>1717949232918</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Remapped Controls, Fixed dupe bug">
+      <option name="closed" value="true" />
+      <created>1717950356544</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1717950356544</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Remapped Controls">
+      <option name="closed" value="true" />
+      <created>1717950509548</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1717950509548</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -369,6 +387,8 @@
     <MESSAGE value="More progress" />
     <MESSAGE value="Kinda working?" />
     <MESSAGE value="Working?" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working?" />
+    <MESSAGE value="Remapped Controls, Fixed dupe bug" />
+    <MESSAGE value="Remapped Controls" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remapped Controls" />
   </component>
 </project>
