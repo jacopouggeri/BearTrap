@@ -20,5 +20,6 @@
     "itemdesc-beartrap-*": "They're not getting to your pen this time!",
     "itemcraftdesc-beartrapjaw-*": "To create a bear trap",
     "blockcraftdesc-beartrap-*": "Place on the ground to trap passing creatures",
-    "deathmsg-beartrap-snapped": "Was caught in a bear trap"
+    "deathmsg-beartrap-snapped": "Was caught in a bear trap",
+    "info-beartrap-snapdamage": "Damage on snap:"
 }

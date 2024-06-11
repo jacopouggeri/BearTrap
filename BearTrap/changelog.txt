@@ -1,4 +1,3 @@
-1.0.3-1.19.8 Changelog
-- Fixed bug that caused tooltip to display incorrectly if the sneak key was not shift
-- Rebalanced trap snap damage, now it's not a percentage of the entity's health but a flat value
-- Players don't get trapped, they only get hurt on snap
+1.0.4-1.19.8 Changelog
+- Fixed material of trap displaying Air instead of Metal
+- Improved inventory tooltip display

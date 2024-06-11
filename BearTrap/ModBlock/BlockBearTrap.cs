@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BearTrap.ModBlockEntity;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using EnumTrapState = BearTrap.ModBlockEntity.EnumTrapState;
@@ -164,13 +166,13 @@ namespace BearTrap.ModBlock
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
-
-        public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        
+        public override void AddExtraHeldItemInfoPostMaterial(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world)
         {
-            dsc.Append("Damage on snap: ").Append(SnapDamage).Append('\n');
-            base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
+            dsc.Append(Lang.Get(BearTrapModSystem.Modid + ":info-beartrap-snapdamage")).Append(' ').Append(SnapDamage).Append(" hp").Append('\n');
+            base.AddExtraHeldItemInfoPostMaterial(inSlot, dsc, world);
         }
-
+        
         public override int GetMaxDurability(ItemStack itemstack)
         {
             return MaxDamage;

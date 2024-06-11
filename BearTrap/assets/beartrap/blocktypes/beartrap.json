@@ -58,7 +58,7 @@
   },
   "heldTpIdleAnimation": "holdunderarm",
   "shape": { "base": "beartrap:beartrap-closed" },
-  "blockmaterial": "Air",
+  "blockmaterial": "Metal",
   "replaceable": 900,
   "resistance": 2,
   "lightAbsorption": 0,

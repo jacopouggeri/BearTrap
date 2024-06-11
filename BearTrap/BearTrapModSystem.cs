@@ -8,7 +8,9 @@ namespace BearTrap;
 
 public class BearTrapModSystem : ModSystem
 {
-    public Logger logger;
+    public Logger Logger;
+    public static string Modid;
+    
     // Called on server and client
     // Useful for registering block/entity classes on both sides
     public override void Start(ICoreAPI api)
@@ -20,7 +22,8 @@ public class BearTrapModSystem : ModSystem
 
     public override void StartServerSide(ICoreServerAPI api)
     {
-        logger = (Logger)Mod.Logger;
+        Modid = Mod.Info.ModID;
+        Logger = (Logger)Mod.Logger;
         //api.Logger.Notification("Hello from template mod server side: " + Lang.Get("beartrap:hello"));
     }
 
