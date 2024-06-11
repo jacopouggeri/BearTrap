@@ -31,14 +31,14 @@
   },
   "attributes": {
     "snapdamageBy": {
-      "copper": 7,
-      "tinbronze": 10,
-      "bismuthbronze": 10,
-      "blackbronze": 12,
-      "iron": 17,
-      "meteoriciron": 20,
-      "steel": 25,
-      "stainlesssteel": 25
+      "copper": 3,
+      "tinbronze": 5,
+      "bismuthbronze": 5,
+      "blackbronze": 6,
+      "iron": 9,
+      "meteoriciron": 10,
+      "steel": 12,
+      "stainlesssteel": 12
     },
     "durabilityBy": {
       "copper": 50,
@@ -58,7 +58,7 @@
   },
   "heldTpIdleAnimation": "holdunderarm",
   "shape": { "base": "beartrap:beartrap-closed" },
-  "blockmaterial": "Metal",
+  "blockmaterial": "Air",
   "replaceable": 900,
   "resistance": 2,
   "lightAbsorption": 0,

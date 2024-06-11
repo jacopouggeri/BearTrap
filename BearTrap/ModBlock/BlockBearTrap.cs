@@ -156,7 +156,7 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(blockSel.Position);
             if (be != null)
             {
-                if (!byPlayer.Entity.Controls.ShiftKey && be.TrapState == EnumTrapState.Closed)
+                if (!byPlayer.Entity.Controls.Sneak && be.TrapState == EnumTrapState.Closed)
                 {
                     return base.OnBlockInteractStart(world, byPlayer, blockSel);
                 }
@@ -167,7 +167,7 @@ namespace BearTrap.ModBlock
 
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
-            dsc.Append("Damage on snap: ").Append(SnapDamage).Append("%").Append('\n');
+            dsc.Append("Damage on snap: ").Append(SnapDamage).Append('\n');
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
         }
 
