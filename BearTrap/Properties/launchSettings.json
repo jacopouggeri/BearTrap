@@ -3,13 +3,13 @@
     "Client": {
       "commandName": "Executable",
       "executablePath": "bash",
-      "commandLineArgs": "-c \"cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/Vintagestory --tracelog\"",
+      "commandLineArgs": "-c \"rm -f $(VINTAGE_STORY)/Mods/*.zip && cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/Vintagestory --tracelog\"",
       "workingDirectory": "$(VINTAGE_STORY)"
     },
     "Server": {
       "commandName": "Executable",
       "executablePath": "bash",
-      "commandLineArgs": "-c \"cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/VintagestoryServer --tracelog\"",
+      "commandLineArgs": "-c \"rm -f $(VINTAGE_STORY)/Mods/*.zip && cp -R $(ProjectDir)/bin/$(Configuration)/Mods/* $(VINTAGE_STORY)/Mods && $(VINTAGE_STORY)/VintagestoryServer --tracelog\"",
       "workingDirectory": "$(VINTAGE_STORY)"
     }
   }

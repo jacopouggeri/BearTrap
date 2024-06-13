@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BearTrap.ModBlockEntity;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using EnumTrapState = BearTrap.ModBlockEntity.EnumTrapState;
@@ -62,6 +62,12 @@ namespace BearTrap.ModBlock
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             be?.SnapClosed(entity);
             base.OnEntityInside(world, entity, pos);
+        }
+        
+        public static IMountable GetMountable(IWorldAccessor world, TreeAttribute tree)
+        {
+            BlockPos pos = new BlockPos(tree.GetInt("posx"), tree.GetInt("posy"), tree.GetInt("posz"));
+            return world.BlockAccessor.GetBlockEntity(pos) as BlockEntityBearTrap;
         }
 
         public override WorldInteraction[] GetPlacedBlockInteractionHelp(IWorldAccessor world, BlockSelection blockSel, IPlayer forPlayer)
@@ -166,10 +172,17 @@ namespace BearTrap.ModBlock
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
-        
+
+        public override void OnBlockRemoved(IWorldAccessor world, BlockPos pos)
+        {
+            if (world.BlockAccessor.GetBlockEntity(pos) is BlockEntityBearTrap blockEntity)
+                blockEntity.MountedBy?.TryUnmount();
+            base.OnBlockRemoved(world, pos);
+        }
+
         public override void AddExtraHeldItemInfoPostMaterial(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world)
         {
-            dsc.Append(Lang.Get(BearTrapModSystem.Modid + ":info-beartrap-snapdamage")).Append(' ').Append(SnapDamage).Append(" hp").Append('\n');
+            dsc.Append(Lang.Get(Core.Modid + ":info-beartrap-snapdamage")).Append(' ').Append(SnapDamage).Append(" hp").Append('\n');
             base.AddExtraHeldItemInfoPostMaterial(inSlot, dsc, world);
         }
         

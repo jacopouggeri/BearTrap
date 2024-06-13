@@ -6,7 +6,7 @@
         "jayugg"
     ],
     "description": "Tired of trapping bears into pits? Adds a bear trap to the game.",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "dependencies": {
         "game": "1.19.8"
     }

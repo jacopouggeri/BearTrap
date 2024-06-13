@@ -22,7 +22,7 @@ namespace BearTrap.ModBlockEntity
         Destroyed
     }
 
-    public class BlockEntityBearTrap : BlockEntityDisplay, IAnimalFoodSource
+    public class BlockEntityBearTrap : BlockEntityDisplay, IAnimalFoodSource, IMountable
     {
         protected ICoreServerAPI Sapi;
 
@@ -31,34 +31,31 @@ namespace BearTrap.ModBlockEntity
         public override string InventoryClassName => "beartrap";
         public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
-
+        
         private int MaxDamage => ((ModBlock.BearTrap)Block).MaxDamage;
 
         private int _damage;
-
-        public int Damage
-        {
+        public int Damage 
+        { 
             get => _damage;
             set => _damage = Math.Min(value, MaxDamage); // Ensure Damage never exceeds MaxDamage
         }
-
+        
         private Dictionary<EnumTrapState, AssetLocation> _shapeByState;
-
+        
 
         public Vec3d Position => Pos.ToVec3d().Add(0.5, 0.25, 0.5);
         public string Type => _inv.Empty ? "nothing" : "food";
-
+        
         float _rotationYDeg;
         float[] _rotMat;
 
         public float RotationYDeg
         {
             get { return _rotationYDeg; }
-            set
-            {
+            set { 
                 _rotationYDeg = value;
-                _rotMat = Matrixf.Create().Translate(0.5f, 0, 0.5f).RotateYDeg(_rotationYDeg - 90)
-                    .Translate(-0.5f, 0, -0.5f).Values;
+                _rotMat = Matrixf.Create().Translate(0.5f, 0, 0.5f).RotateYDeg(_rotationYDeg - 90).Translate(-0.5f, 0, -0.5f).Values;
             }
         }
 
@@ -68,7 +65,7 @@ namespace BearTrap.ModBlockEntity
 
         public EnumTrapState TrapState
         {
-            get { return _trapState; }
+            get { return _trapState;}
             set
             {
                 _trapState = value;
@@ -76,9 +73,9 @@ namespace BearTrap.ModBlockEntity
                 MarkDirty(true);
             }
         }
-
+        
         public float SnapDamage => ((ModBlock.BearTrap)Block).SnapDamage;
-
+        
         public BlockEntityBearTrap()
         {
             _inv = new InventoryGeneric(1, null, null);
@@ -88,16 +85,28 @@ namespace BearTrap.ModBlockEntity
         {
             base.Initialize(api);
             _inv.LateInitialize("beartrap-" + Pos, api);
-
+            this._controls.OnAction = this.OnControls;
+            
+            EntityAgent entityAgent;
+            if (this._mountedByPlayerUid == null)
+            {
+                entityAgent = api.World.GetEntityById(this._mountedByEntityId) as EntityAgent;
+            }
+            else
+            {
+                IPlayer player = api.World.PlayerByUid(this._mountedByPlayerUid);
+                entityAgent = player?.Entity;
+            }
+            entityAgent?.TryMount(this);
+            
             Sapi = api as ICoreServerAPI;
             if (api.Side != EnumAppSide.Client)
             {
                 Sapi?.ModLoader.GetModSystem<POIRegistry>().AddPOI(this);
             }
-
+            
             var shapeByStateString = Block.Attributes?["shapeBy"].AsObject<Dictionary<string, string>>();
-            Dictionary<EnumTrapState, AssetLocation> shapeAssetLocations =
-                new Dictionary<EnumTrapState, AssetLocation>();
+            Dictionary<EnumTrapState, AssetLocation> shapeAssetLocations = new Dictionary<EnumTrapState, AssetLocation>();
 
             if (shapeByStateString != null)
             {
@@ -105,76 +114,28 @@ namespace BearTrap.ModBlockEntity
                 {
                     if (Enum.TryParse(pair.Key, true, out EnumTrapState state))
                     {
-                        shapeAssetLocations[state] = AssetLocation.Create(pair.Value, Block.Code.Domain)
-                            .WithPathPrefixOnce("shapes/").WithPathAppendixOnce(".json");
+                        shapeAssetLocations[state] = AssetLocation.Create(pair.Value, Block.Code.Domain).WithPathPrefixOnce("shapes/").WithPathAppendixOnce(".json");
                     }
                 }
             }
 
             _shapeByState = shapeAssetLocations;
-
-            Api.World.RegisterGameTickListener(TrapEntities, 50);
+            Api.World.RegisterGameTickListener(UnMountIfDead, 50);
         }
-
-        private Entity[] LoadTrappedEntities()
+        
+        private void UnMountIfDead(float deltaTime)
         {
-            // Might want to use entity partitioning
-            var entities = Api.World.GetEntitiesAround(Pos.ToVec3d(), 4, 2, e =>
-            {
-                var trappedData = e.WatchedAttributes.GetTreeAttribute("trappedData");
-                return trappedData != null && trappedData.GetBool("isTrapped") && e.Alive;
-            });
-            return entities;
-        }
-
-        private void TrapEntities(float deltaTime)
-        {
-            if (TrapState != EnumTrapState.Closed) return;
-
-            foreach (var entity in LoadTrappedEntities())
-            {
-                bool isEntityDeadOrPlayer = !entity.Alive || entity is EntityPlayer;
-                if (isEntityDeadOrPlayer)
+            if (TrapState != EnumTrapState.Closed) this.MountedBy?.TryUnmount();
+                if (MountedBy is { Alive: false })
                 {
-                    ReleaseTrappedEntity();
-                    return;
+                    this.MountedBy.TryUnmount();
                 }
 
-                var trappedData = entity.WatchedAttributes.GetTreeAttribute("trappedData");
-                var trappedPos = trappedData.GetBlockPos("trappedPos");
-
-                if (trappedPos.Equals(Pos)) // TODO TRAP PLAYER
+                if (TrapState == EnumTrapState.Closed)
                 {
-                    Vec3d direction = Pos.ToVec3d().Add(0.5, 0, 0.5).Add(entity.ServerPos.XYZ.Mul(-1));
-                    double distance = direction.Length();
-
-                    bool motionCheck = entity.ServerPos.Motion.Length() > 0.01;
-                    bool dieRoll = Api.World.Rand.NextDouble() < 0.02;
-
-                    if (motionCheck && dieRoll)
-                    {
-                        DamageEntity(entity, SnapDamage * 0.1f);
-                        BehaviorUtil.AddTiredness(entity, 5);
-                        Damage += 1;
-
-                        if (Damage > MaxDamage - 1)
-                        {
-                            SetDestroyed();
-                            return;
-                        }
-                    }
-
-                    direction.Normalize();
-                    double scale = Math.Max(0, 1 - distance * 0.1);
-                    Vec3d desiredMotion = direction.Mul(scale);
-
-                    double interpolationFactor = 0.1;
-                    Vec3d newMotion = entity.ServerPos.Motion.Mul(1 - interpolationFactor)
-                        .Add(desiredMotion.Mul(interpolationFactor));
-
-                    entity.ServerPos.Motion.Set(newMotion.X, newMotion.Y, newMotion.Z);
+                    if (this.Api.World.Side.IsServer()) this.MountedBy?.ServerPos.SetPos(MountPosition);
+                    else this.MountedBy?.Pos.SetPos(MountPosition);
                 }
-            }
         }
 
         private void SetDestroyed()
@@ -183,9 +144,9 @@ namespace BearTrap.ModBlockEntity
             Damage = MaxDamage;
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
-            ReleaseTrappedEntity();
+            this.MountedBy?.TryUnmount();
         }
-
+        
         public bool Interact(IPlayer player, BlockSelection blockSel)
         {
             switch (TrapState)
@@ -193,23 +154,22 @@ namespace BearTrap.ModBlockEntity
                 case EnumTrapState.Destroyed:
                     return true;
                 case EnumTrapState.Closed when player.Entity.Controls.Sneak:
+                    MountedBy?.TryUnmount();
                     TrapState = EnumTrapState.Open;
                     return true;
                 // Damage players if they attempt to touch the trap without sneaking
-                case EnumTrapState.Open when _inv[0].Empty:
-                    return TryReadyTrap(player);
                 case EnumTrapState.Open when !player.Entity.Controls.Sneak:
                 case EnumTrapState.Baited when !player.Entity.Controls.Sneak:
-                    DamageEntity(player.Entity, SnapDamage);
-                    TrapState = EnumTrapState.Closed;
+                    SnapClosed(player.Entity);
                     return true;
+                case EnumTrapState.Open when _inv[0].Empty:
+                    return TryReadyTrap(player);
                 case EnumTrapState.Baited when _inv[0].Itemstack != null:
                 {
                     if (!player.InventoryManager.TryGiveItemstack(_inv[0].Itemstack))
                     {
                         Api.World.SpawnItemEntity(_inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
                     }
-
                     TrapState = EnumTrapState.Open;
                     return true;
                 }
@@ -231,10 +191,9 @@ namespace BearTrap.ModBlockEntity
                 heldSlot.MarkDirty();
                 return true;
             }
-
             return false;
         }
-
+        
         public bool IsSuitableFor(Entity entity, CreatureDiet diet)
         {
             if (TrapState != EnumTrapState.Baited) return false;
@@ -251,45 +210,23 @@ namespace BearTrap.ModBlockEntity
 
         public void SnapClosed(Entity entity)
         {
-            if (TrapState == EnumTrapState.Destroyed || TrapState == EnumTrapState.Closed) return;
-            if (entity.IsCreature)
+            if (TrapState is EnumTrapState.Destroyed or EnumTrapState.Closed) return;
+            if (entity is EntityAgent entityAgent)
             {
-                float trapChance = entity.Properties.Attributes["trapChance"].AsFloat();
-                if (Api.World.Rand.NextDouble() < Double.Max(1 - trapChance - 0.05, 0))
-                {
-                    // Stop the entity from moving
-                    ITreeAttribute trappedData = entity.WatchedAttributes.GetTreeAttribute("trappedData");
-
-                    if (trappedData == null)
-                    {
-                        trappedData = new TreeAttribute();
-                        entity.WatchedAttributes["trappedData"] = trappedData;
-                    }
-
-                    trappedData.SetBool("isTrapped", true);
-                    trappedData.SetBlockPos("trappedPos", Pos);
-
-                    DamageEntity(entity, SnapDamage);
-                    BearTrapModSystem.Logger.Warning("Damage:" + Damage);
-                    _inv[0].Itemstack = null;
-                }
+                Core.Logger.Warning("Snap Damage");
+                DamageEntity(entityAgent, SnapDamage);
+                entityAgent.TryUnmount();
+                entityAgent.TryMount(this);
+                _inv[0].Itemstack = null;
             }
-
             Damage += 1;
             TrapState = EnumTrapState.Closed;
-            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25,
-                Pos.Z + 0.5, null, true, 16);
+            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
         }
-
+        
         private void DamageEntity(Entity entity, float damage)
         {
-            if (!entity.HasBehavior<EntityBehaviorHealth>())
-            {
-                return;
-            }
-
-            bool shouldRelease = entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0 &&
-                                 entity is EntityPlayer;
+            if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
             entity.ReceiveDamage(new DamageSource()
                 {
                     Source = EnumDamageSource.Block,
@@ -298,26 +235,8 @@ namespace BearTrap.ModBlockEntity
                     SourcePos = this.Pos.ToVec3d()
                 },
                 damage: damage);
-            if (shouldRelease) ReleaseTrappedEntity();
         }
-
-        private void ReleaseTrappedEntity()
-        {
-            foreach (var entity in LoadTrappedEntities())
-            {
-                var trappedPos = entity.WatchedAttributes.GetTreeAttribute("trappedData").GetBlockPos("trappedPos");
-                if (trappedPos.Equals(Pos))
-                {
-                    if (entity is EntityPlayer player)
-                    {
-                        SpeedUtil.RemoveSlowEffect(player);
-                    }
-
-                    entity.WatchedAttributes.RemoveAttribute("trappedData");
-                }
-            }
-        }
-
+        
         public override void OnBlockBroken(IPlayer byPlayer = null)
         {
             base.OnBlockBroken(byPlayer);
@@ -325,8 +244,6 @@ namespace BearTrap.ModBlockEntity
             {
                 Api.ModLoader.GetModSystem<POIRegistry>().RemovePOI(this);
             }
-
-            ReleaseTrappedEntity();
         }
 
         public override void OnBlockRemoved()
@@ -336,8 +253,6 @@ namespace BearTrap.ModBlockEntity
             {
                 Api.ModLoader.GetModSystem<POIRegistry>().RemovePOI(this);
             }
-
-            ReleaseTrappedEntity();
         }
 
         public override void OnBlockUnloaded()
@@ -349,7 +264,7 @@ namespace BearTrap.ModBlockEntity
                 Api.ModLoader.GetModSystem<POIRegistry>().RemovePOI(this);
             }
         }
-
+        
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
             base.FromTreeAttributes(tree, worldForResolving);
@@ -363,10 +278,11 @@ namespace BearTrap.ModBlockEntity
             {
                 TrapState = (EnumTrapState)tree.GetInt("trapState");
             }
+            this._mountedByEntityId = tree.GetLong("mountedByEntityId");
+            this._mountedByPlayerUid = tree.GetString("mountedByPlayerUid");
 
             // Do this last
-            RedrawAfterReceivingTreeAttributes(
-                worldForResolving); // Redraw on client after we have completed receiving the update from server
+            RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
         }
 
 
@@ -376,22 +292,24 @@ namespace BearTrap.ModBlockEntity
             tree.SetFloat("rotationYDeg", _rotationYDeg);
             tree.SetInt("damage", _damage);
             tree.SetInt("trapState", (int)TrapState);
+            tree.SetLong("mountedByEntityId", this._mountedByEntityId);
+            tree.SetString("mountedByPlayerUid", this._mountedByPlayerUid);
         }
 
-
+        
         public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
         {
             if (TrapState == EnumTrapState.Destroyed)
             {
-                dsc.Append(Lang.Get(BearTrapModSystem.Modid + ":info-beartrap-destroyed"));
+                dsc.Append(Lang.Get(Core.Modid + ":info-beartrap-destroyed"));
                 return;
             }
-
             dsc.Append("Durability: " + (MaxDamage - Damage) + "/" + (MaxDamage) + "\n");
             if (TrapState == EnumTrapState.Baited)
             {
                 dsc.Append(BlockEntityShelf.PerishableInfoCompact(Api, _inv[0], 0));
             }
+            dsc.Append(TrapState);
         }
 
         protected override float[][] genTransformationMatrices()
@@ -402,32 +320,30 @@ namespace BearTrap.ModBlockEntity
             {
                 tfMatrices[i] =
                     new Matrixf()
-                        .Translate(0.5f, 0.1f, 0.5f)
-                        .Scale(0.75f, 0.75f, 0.75f)
-                        .Translate(-0.5f, 0, -0.5f)
-                        .Values
-                    ;
+                    .Translate(0.5f, 0.1f, 0.5f)
+                    .Scale(0.75f, 0.75f, 0.75f)
+                    .Translate(-0.5f, 0, -0.5f)
+                    .Values
+                ;
             }
 
             return tfMatrices;
         }
-
+        
         public MeshData GetOrCreateMesh(AssetLocation loc, ITexPositionSource texSource = null)
         {
-            return ObjectCacheUtil.GetOrCreate(Api,
-                "bearTrap-" + MetalVariant + loc + (texSource == null ? "-d" : "-t"), () =>
+            return ObjectCacheUtil.GetOrCreate(Api, "bearTrap-" + MetalVariant + loc + (texSource == null ? "-d" : "-t"), () =>
+            {
+                var shape = Api.Assets.Get<Shape>(loc);
+                if (texSource == null)
                 {
-                    var shape = Api.Assets.Get<Shape>(loc);
-                    if (texSource == null)
-                    {
-                        texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
-                    }
-
-                    var block = Api.World.BlockAccessor.GetBlock(Pos);
-                    ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc),
-                        out var meshdata);
-                    return meshdata;
-                });
+                    texSource = new ShapeTextureSource(capi, shape, loc.ToShortString());
+                }
+                
+                var block = Api.World.BlockAccessor.GetBlock(Pos);
+                ((ICoreClientAPI)Api).Tesselator.TesselateShape(block, Api.Assets.Get<Shape>(loc), out var meshdata);
+                return meshdata;
+            });
         }
 
         public MeshData GetCurrentMesh(ITexPositionSource texSource = null)
@@ -435,7 +351,7 @@ namespace BearTrap.ModBlockEntity
             if (TrapState == EnumTrapState.Baited) return GetOrCreateMesh(_shapeByState[EnumTrapState.Open], texSource);
             return GetOrCreateMesh(_shapeByState[TrapState], texSource);
         }
-
+        
         public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
         {
 
@@ -444,8 +360,86 @@ namespace BearTrap.ModBlockEntity
             {
                 mesher.AddMeshData(GetCurrentMesh(this), _rotMat);
             }
-
             return true;
         }
+        
+        // IMountable
+
+        public void MountableToTreeAttributes(TreeAttribute tree)
+        {
+            tree.SetString("className", Core.Modid + "beartrap");
+            tree.SetInt("posx", this.Pos.X);
+            tree.SetInt("posy", this.Pos.InternalY);
+            tree.SetInt("posz", this.Pos.Z);
+        }
+
+        public void DidUnmount(EntityAgent entityAgent)
+        {
+            Core.Logger.Warning("DidUnmount: {}", this._mountedByPlayerUid);
+            Core.Logger.Warning("DidUnmount: {}", this._mountedByEntityId);
+            this.MountedBy = null;
+            this._mountedByEntityId = 0L;
+            this._mountedByPlayerUid = null;
+            this.LocalEyePos = null;
+        }
+
+        public void DidMount(EntityAgent entityAgent)
+        {
+            if (this.MountedBy == entityAgent)
+                return;
+            this.MountedBy = entityAgent;
+            this._mountedByPlayerUid = entityAgent is EntityPlayer entityPlayer ? entityPlayer.PlayerUID : null;
+            this._mountedByEntityId = this.MountedBy.EntityId;
+            this.LocalEyePos = entityAgent.LocalEyePos.ToVec3f();
+            Core.Logger.Warning("DidMount: {}", this._mountedByPlayerUid);
+            Core.Logger.Warning("DidMount: {}", this._mountedByEntityId);
+        }
+        
+        private EntityControls _controls = new EntityControls();
+        public EntityControls Controls => this._controls;
+        public EntityAgent MountedBy;
+        public bool CanControl => false;
+        Entity IMountable.MountedBy => this.MountedBy;
+        public IMountableSupplier MountSupplier => null;
+        private EntityPos _mountPos = new EntityPos();
+        private long _mountedByEntityId;
+        private string _mountedByPlayerUid;
+        public EntityPos MountPosition
+        {
+            get
+            {
+                this._mountPos.SetPos(this.Pos);
+                this._mountPos.Add(0.5f, 0f, 0.5f);
+                return this._mountPos;
+            }
+        }
+        
+        private void OnControls(EnumEntityAction action, bool on, ref EnumHandling handled)
+        {
+            this._controls.StopAllMovement();
+            if (on && action is not (EnumEntityAction.Backward or EnumEntityAction.Forward or EnumEntityAction.Right
+                or EnumEntityAction.Left or EnumEntityAction.Up)) return;
+            if (MountedBy != null)
+            {
+                DamageEntityAndTrap();
+            }
+            handled = EnumHandling.PreventSubsequent;
+        }
+
+        private void DamageEntityAndTrap()
+        {
+            DamageEntity(MountedBy, SnapDamage * 0.1f);
+            BehaviorUtil.AddTiredness(MountedBy, 2f);
+            Damage += 1;
+            MarkDirty();
+            if (Damage > MaxDamage - 1)
+            {
+                SetDestroyed();
+            }
+        }
+
+        public EnumMountAngleMode AngleMode => EnumMountAngleMode.Unaffected;
+        public string SuggestedAnimation => "sitflooridle";
+        public Vec3f LocalEyePos { get; private set; }
     }
 }

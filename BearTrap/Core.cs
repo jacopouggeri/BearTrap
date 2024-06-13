@@ -5,7 +5,7 @@ using Vintagestory.API.Common;
 
 namespace BearTrap;
 
-public class BearTrapModSystem : ModSystem
+public class Core : ModSystem
 {
     public static ILogger Logger;
     public static string Modid;
@@ -14,15 +14,16 @@ public class BearTrapModSystem : ModSystem
     // Useful for registering block/entity classes on both sides
     public override void Start(ICoreAPI api)
     {
+        Modid = Mod.Info.ModID;
+        Logger = Mod.Logger;
         //api.Logger.Notification("Hello from template mod: " + api.Side);
-        api.RegisterBlockClass(Mod.Info.ModID + ".beartrap", typeof(ModBlock.BearTrap));
-        api.RegisterBlockEntityClass(Mod.Info.ModID + ".blockentitybeartrap", typeof(BlockEntityBearTrap));
+        api.RegisterBlockClass(Modid + ".beartrap", typeof(ModBlock.BearTrap));
+        api.RegisterBlockEntityClass(Modid + ".blockentitybeartrap", typeof(BlockEntityBearTrap));
+        api.RegisterMountable(Modid + ".beartrap", ModBlock.BearTrap.GetMountable);
     }
 
     public override void StartServerSide(ICoreServerAPI api)
     {
-        Modid = Mod.Info.ModID;
-        Logger = Mod.Logger;
     }
 
     public override void StartClientSide(ICoreClientAPI api)
