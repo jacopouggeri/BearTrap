@@ -1,3 +1,3 @@
-1.0.4-1.19.8 Changelog
-- Fixed material of trap displaying Air instead of Metal
-- Improved inventory tooltip display
+1.0.5-1.19.8 Changelog
+- Small tweaks to translation files and mod logging
+- Fixed Bear trap with zero durability not being destroyed
