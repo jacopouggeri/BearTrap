@@ -1,3 +1,4 @@
-1.0.5-1.19.8 Changelog
-- Small tweaks to translation files and mod logging
-- Fixed Bear trap with zero durability not being destroyed
+1.1.0-1.19.8 Changelog
+- Reworked trapping (this will release all currently trapped entities in your world):
+    - Better entity trapping
+    - Player trapping

@@ -122,12 +122,6 @@ namespace BearTrap.ModBlockEntity
             api.World.RegisterGameTickListener(SlowTick, 50);
         }
         
-        private Entity? LoadTrappedEntity()
-        {
-            var entities = Api.World.GetEntitiesAround(Pos.ToVec3d(), 5, 5, e => e.WatchedAttributes != null && e.WatchedAttributes.GetBool(Core.Modid + "trapped") && e.Alive);
-            return entities != null && entities.Any() ? entities[0] : null;
-        }
-        
         private void SlowTick(float deltaTime)
         {
             if (TrapState != EnumTrapState.Closed) return;
@@ -135,12 +129,10 @@ namespace BearTrap.ModBlockEntity
             {
                 UnmountEntity("dead");
             }
-            else if (MountedBy is { WatchedAttributes: not null } && MountedBy.WatchedAttributes.GetBool(Core.Modid + ":trapped"))
+            if (MountedBy == null) return;
+            if (MountedBy.AnimManager != null && MountedBy.AnimManager.IsAnimationActive("walk", "spring", "run", "move"))
             {
-                if (LoadTrappedEntity() is EntityAgent entityAgent)
-                {
-                    MountEntity(entityAgent);
-                }
+                DamageEntityAndTrap();
             }
         }
 
@@ -159,7 +151,6 @@ namespace BearTrap.ModBlockEntity
             if (entityAgent == null) return;
             entityAgent.TryMount(this);
             MountedBy = entityAgent;
-            entityAgent?.WatchedAttributes?.SetBool(Core.Modid + ":trapped", true);
             if (MountedBy is EntityPlayer entityPlayer)
             {
                 entityPlayer.Stats.Set("walkspeed", Core.Modid + "trapped", -1);
@@ -173,7 +164,6 @@ namespace BearTrap.ModBlockEntity
             {
                 entityPlayer.Stats.Remove("walkspeed", Core.Modid + "trapped");
             }
-            this.MountedBy?.WatchedAttributes?.SetBool(Core.Modid + ":trapped", false);
             this.MountedBy?.TryUnmount();
         }
         
@@ -477,7 +467,8 @@ namespace BearTrap.ModBlockEntity
                 }
             }
             DamageEntity(MountedBy, SnapDamage * 0.1f);
-            BehaviorUtil.AddTiredness(MountedBy, 1f);
+            var tiredHours = MountedBy is EntityPlayer ? 1f : 4f;
+            BehaviorUtil.AddTiredness(MountedBy,tiredHours);
         }
 
         public EnumMountAngleMode AngleMode => EnumMountAngleMode.Unaffected;
