@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BearTrap.Util;
 using Vintagestory.API.Client;
@@ -70,7 +72,7 @@ namespace BearTrap.ModBlockEntity
             {
                 _trapState = value;
                 if (value != EnumTrapState.Baited) _inv[0].Itemstack = null;
-                if (value != EnumTrapState.Closed) UnmountEntity("trapStateChange");
+                if (value != EnumTrapState.Closed) UnmountEntity("openTrap");
                 MarkDirty(true);
             }
         }
@@ -106,7 +108,7 @@ namespace BearTrap.ModBlockEntity
             
             this._controls.OnAction = this.OnControls;
             
-            EntityAgent entityAgent;
+            EntityAgent? entityAgent;
             if (this._mountedByPlayerUid == null)
             {
                 entityAgent = api.World.GetEntityById(this._mountedByEntityId) as EntityAgent;
@@ -116,8 +118,14 @@ namespace BearTrap.ModBlockEntity
                 IPlayer player = api.World.PlayerByUid(this._mountedByPlayerUid);
                 entityAgent = player?.Entity;
             }
-            entityAgent?.TryMount(this);
+            MountEntity(entityAgent, "init");
             api.World.RegisterGameTickListener(SlowTick, 50);
+        }
+        
+        private Entity? LoadTrappedEntity()
+        {
+            var entities = Api.World.GetEntitiesAround(Pos.ToVec3d(), 5, 5, e => e.WatchedAttributes != null && e.WatchedAttributes.GetBool(Core.Modid + "trapped") && e.Alive);
+            return entities != null && entities.Any() ? entities[0] : null;
         }
         
         private void SlowTick(float deltaTime)
@@ -126,6 +134,13 @@ namespace BearTrap.ModBlockEntity
             if (MountedBy is { Alive: false })
             {
                 UnmountEntity("dead");
+            }
+            else if (MountedBy is { WatchedAttributes: not null } && MountedBy.WatchedAttributes.GetBool(Core.Modid + ":trapped"))
+            {
+                if (LoadTrappedEntity() is EntityAgent entityAgent)
+                {
+                    MountEntity(entityAgent);
+                }
             }
         }
 
@@ -137,10 +152,28 @@ namespace BearTrap.ModBlockEntity
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
             UnmountEntity("destroyed");
         }
+        
+        public void MountEntity(EntityAgent? entityAgent, string? dsc = null) 
+        {
+            Core.Logger.Warning("MountingMethod: {0}", dsc);
+            if (entityAgent == null) return;
+            entityAgent.TryMount(this);
+            MountedBy = entityAgent;
+            entityAgent?.WatchedAttributes?.SetBool(Core.Modid + ":trapped", true);
+            if (MountedBy is EntityPlayer entityPlayer)
+            {
+                entityPlayer.Stats.Set("walkspeed", Core.Modid + "trapped", -1);
+            }
+        }
 
         public void UnmountEntity(String dsc = null)
         {
             Core.Logger.Warning("UnmountingMethod: {0}", dsc);
+            if (MountedBy is EntityPlayer entityPlayer)
+            {
+                entityPlayer.Stats.Remove("walkspeed", Core.Modid + "trapped");
+            }
+            this.MountedBy?.WatchedAttributes?.SetBool(Core.Modid + ":trapped", false);
             this.MountedBy?.TryUnmount();
         }
         
@@ -151,7 +184,6 @@ namespace BearTrap.ModBlockEntity
                 case EnumTrapState.Destroyed:
                     return true;
                 case EnumTrapState.Closed when player.Entity.Controls.Sneak:
-                    UnmountEntity("openTrap");
                     TrapState = EnumTrapState.Open;
                     return true;
                 // Damage players if they attempt to touch the trap without sneaking
@@ -167,6 +199,7 @@ namespace BearTrap.ModBlockEntity
                     {
                         Api.World.SpawnItemEntity(_inv[0].Itemstack, Pos.ToVec3d().Add(0.5, 0.2, 0.5));
                     }
+
                     TrapState = EnumTrapState.Open;
                     return true;
                 }
@@ -214,7 +247,7 @@ namespace BearTrap.ModBlockEntity
                 Core.Logger.Warning("Snap Damage");
                 DamageEntity(entityAgent, SnapDamage);
                 Core.Logger.Warning("SnapMount: {0}", entityAgent.MountedOn);
-                if (entityAgent.MountedOn == null) entityAgent.TryMount(this);
+                if (entityAgent.MountedOn == null) MountEntity(entityAgent, "snapclosed");
                 Core.Logger.Warning("SnapMount2: {0}", entityAgent.MountedOn);
                 _inv[0].Itemstack = null;
             }
@@ -252,6 +285,7 @@ namespace BearTrap.ModBlockEntity
             if (Api.Side == EnumAppSide.Server)
             {
                 Api.ModLoader.GetModSystem<POIRegistry>().RemovePOI(this);
+                UnmountEntity("blockremoved");
             }
         }
 
@@ -447,7 +481,7 @@ namespace BearTrap.ModBlockEntity
         }
 
         public EnumMountAngleMode AngleMode => EnumMountAngleMode.Unaffected;
-        public string SuggestedAnimation => null;
+        public string SuggestedAnimation => "stand";
         public Vec3f LocalEyePos { get; private set; }
     }
 }

@@ -59,14 +59,15 @@ namespace BearTrap.ModBlock
 
         public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
         {
+            base.OnEntityInside(world, entity, pos);
+            if (!api.Side.IsServer()) return;
             var be = GetBlockEntity<BlockEntityBearTrap>(pos);
             be?.SnapClosed(entity);
-            base.OnEntityInside(world, entity, pos);
         }
         
         public static IMountable GetMountable(IWorldAccessor world, TreeAttribute tree)
         {
-            BlockPos pos = new BlockPos(tree.GetInt("posx"), tree.GetInt("posy"), tree.GetInt("posz"));
+            BlockPos pos = new BlockPos(tree.GetInt("posx"), tree.GetInt("posy"), tree.GetInt("posz"), 0);
             return world.BlockAccessor.GetBlockEntity(pos) as BlockEntityBearTrap;
         }
 
@@ -175,15 +176,13 @@ namespace BearTrap.ModBlock
 
         public override void OnBlockRemoved(IWorldAccessor world, BlockPos pos)
         {
-            if (world.BlockAccessor.GetBlockEntity(pos) is BlockEntityBearTrap blockEntity)
-                blockEntity.UnmountEntity();
             base.OnBlockRemoved(world, pos);
         }
 
         public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
         {
             if (world.BlockAccessor.GetBlockEntity(pos) is BlockEntityBearTrap blockEntity)
-                blockEntity.UnmountEntity();
+                blockEntity.UnmountEntity("blockbroken");
             base.OnBlockBroken(world, pos, byPlayer, dropQuantityMultiplier);
         }
 
