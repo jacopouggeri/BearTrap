@@ -1,5 +1,9 @@
 {
     "blockhelp-beartrap-open": "Pry open",
     "blockhelp-beartrap-bait": "Place bait",
-    "blockhelp-beartrap-pickbait": "Pick up bait"
+    "blockhelp-beartrap-pickbait": "Pick up bait",
+    
+    "prefixandcreature:beartrap": "a bear trap",
+    "prefixandcreature-chickenhen": "a hen",
+    "deathmsg-beartrap-1": "Player {0} was caught in a bear trap"
 }

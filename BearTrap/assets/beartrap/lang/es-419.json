@@ -1,0 +1,26 @@
+{
+  "block-beartrap-copper": "Trampa para osos de cobre",
+  "block-beartrap-tinbronze": "Trampa para osos de bronce de estaño",
+  "block-beartrap-bismuthbronze": "Trampa para osos de bronce de bismuto",
+  "block-beartrap-blackbronze": "Trampa para osos de bronce negro",
+  "block-beartrap-iron": "Trampa para osos de hierro",
+  "block-beartrap-meteoriciron": "Trampa para osos de hierro meteórico",
+  "block-beartrap-steel": "Trampa para osos de acero",
+  "block-beartrap-stainlesssteel": "Trampa para osos de acero inoxidable",
+
+  "item-beartrapjaw-copper": "Mandíbula de trampa para osos de cobre",
+  "item-beartrapjaw-tinbronze": "Mandíbula de trampa para osos de bronce de estaño",
+  "item-beartrapjaw-bismuthbronze": "Mandíbula de trampa para osos de bronce de bismuto",
+  "item-beartrapjaw-blackbronze": "Mandíbula de trampa para osos de bronce negro",
+  "item-beartrapjaw-iron": "Mandíbula de trampa para osos de hierro",
+  "item-beartrapjaw-meteoriciron": "Mandíbula de trampa para osos de hierro meteórico",
+  "item-beartrapjaw-steel": "Mandíbula de trampa para osos de acero",
+  "item-beartrapjaw-stainlesssteel": "Mandíbula de trampa para osos de acero inoxidable",
+  
+  "itemdesc-beartrap-*": "¡No van a llegar a tu corral esta vez!",
+  "itemcraftdesc-beartrapjaw-*": "Para crear una trampa para osos",
+  "blockcraftdesc-beartrap-*": "Coloca en el suelo para atrapar a las criaturas que pasen",
+  "info-beartrap-snapdamage": "Daño al cerrarse:",
+  "info-beartrap-destroyed": "Esta trampa se destruyó después de un uso prolongado",
+  "info-beartrap-destroyedby": "Esta trampa fue destruida por "
+}

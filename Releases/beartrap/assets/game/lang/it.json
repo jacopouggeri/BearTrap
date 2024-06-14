@@ -1,0 +1,9 @@
+{
+  "blockhelp-beartrap-open": "Apri",
+  "blockhelp-beartrap-bait": "Piazza esca",
+  "blockhelp-beartrap-pickbait": "Prendi esca",
+  
+  "prefixandcreature:beartrap": "una trappola per orsi",
+  "prefixandcreature-chickenhen": "una gallina",
+  "deathmsg-beartrap-1": "Il giocatore {0} è stato catturato in una trappola per orsi"
+}

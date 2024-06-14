@@ -1,4 +1,6 @@
-1.1.0-1.19.8 Changelog
-- Reworked trapping (this will release all currently trapped entities in your world):
-    - Better entity trapping
-    - Player trapping
+1.1.1-1.19.8 Changelog
+- Fixed mod zip being 4x heavier
+- Fixed nasty bug that left player unable to walk after dying from a bear trap (to recover from this, go into creative, fly and destroy the bear trap)
+- Added translations for es-es, es-419, it
+- Now player can also sit to place bait
+- Added information about trap destruction in the block info

@@ -1,0 +1,27 @@
+{
+  "block-beartrap-copper": "Trappola per orsi di rame",
+  "block-beartrap-tinbronze": "Trappola per orsi di bronzo stagno",
+  "block-beartrap-bismuthbronze": "Trappola per orsi di bronzo al bismuto",
+  "block-beartrap-blackbronze": "Trappola per orsi di bronzo nero",
+  "block-beartrap-iron": "Trappola per orsi di ferro",
+  "block-beartrap-meteoriciron": "Trappola per orsi di ferro meteorico",
+  "block-beartrap-steel": "Trappola per orsi di acciaio",
+  "block-beartrap-stainlesssteel": "Trappola per orsi di acciaio inossidable",
+  
+  "item-beartrapjaw-copper": "Pezzo di mascella di trappola per orsi di rame",
+  "item-beartrapjaw-tinbronze": "Pezzo di mascella di trappola per orsi in bronzo di stagno",
+  "item-beartrapjaw-bismuthbronze": "Pezzo di mascella di trappola per orsi in bronzo di bismuto",
+  "item-beartrapjaw-blackbronze": "Pezzo di mascella di trappola per orsi in bronzo nero",
+  "item-beartrapjaw-iron": "Pezzo di mascella di trappola per orsi in ferro",
+  "item-beartrapjaw-meteoriciron": "Pezzo di mascella di trappola per orsi in ferro meteoritico",
+  "item-beartrapjaw-steel": "Pezzo di mascella di trappola per orsi in acciaio",
+  "item-beartrapjaw-stainlesssteel": "Pezzo di mascella di trappola per orsi in acciaio inossidabile",
+
+  "itemdesc-beartrap-*": "Non arriveranno al tuo recinto questa volta!",
+  "itemcraftdesc-beartrapjaw-*": "Per creare una trappola per orsi",
+  "blockcraftdesc-beartrap-*": "Posiziona a terra per intrappolare le creature che passano",
+  "deathmsg-beartrap-snapped": "È stato catturato in una trappola per orsi",
+  "info-beartrap-snapdamage": "Danno alla chiusura:",
+  "info-beartrap-destroyed": "Questa trappola è stata distrutta dopo un uso prolungato",
+  "info-beartrap-destroyedby": "Questa trappola è stata distrutta da "
+}

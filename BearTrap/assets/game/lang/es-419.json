@@ -1,0 +1,9 @@
+{
+  "blockhelp-beartrap-open": "Abrir con palanca",
+  "blockhelp-beartrap-bait": "Colocar cebo",
+  "blockhelp-beartrap-pickbait": "Recoger cebo",
+
+  "prefixandcreature:beartrap": "una trampa para osos",
+  "prefixandcreature-chickenhen": "una gallina",
+  "deathmsg-beartrap-1": "Jugador {0} fue atrapado en una trampa para osos"
+}

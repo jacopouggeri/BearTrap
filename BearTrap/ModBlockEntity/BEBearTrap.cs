@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BearTrap.Util;
 using Vintagestory.API.Client;
@@ -33,6 +32,8 @@ namespace BearTrap.ModBlockEntity
         public override string InventoryClassName => "beartrap";
         public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
         public override string AttributeTransformCode => "beartrap";
+
+        private string? _destroyedByLangCode;
         
         private int MaxDamage => ((ModBlock.BearTrap)Block).MaxDamage;
 
@@ -142,12 +143,12 @@ namespace BearTrap.ModBlockEntity
             Damage = MaxDamage;
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
+
             UnmountEntity("destroyed");
         }
         
         public void MountEntity(EntityAgent? entityAgent, string? dsc = null) 
         {
-            Core.Logger.Warning("MountingMethod: {0}", dsc);
             if (entityAgent == null) return;
             entityAgent.TryMount(this);
             MountedBy = entityAgent;
@@ -155,11 +156,11 @@ namespace BearTrap.ModBlockEntity
             {
                 entityPlayer.Stats.Set("walkspeed", Core.Modid + "trapped", -1);
             }
+            this._destroyedByLangCode = "prefixandcreature-" + entityAgent.Code.Path.Replace("-", "");
         }
 
         public void UnmountEntity(String dsc = null)
         {
-            Core.Logger.Warning("UnmountingMethod: {0}", dsc);
             if (MountedBy is EntityPlayer entityPlayer)
             {
                 entityPlayer.Stats.Remove("walkspeed", Core.Modid + "trapped");
@@ -176,13 +177,13 @@ namespace BearTrap.ModBlockEntity
                 case EnumTrapState.Closed when player.Entity.Controls.Sneak:
                     TrapState = EnumTrapState.Open;
                     return true;
-                // Damage players if they attempt to touch the trap without sneaking
-                case EnumTrapState.Open when !player.Entity.Controls.Sneak:
-                case EnumTrapState.Baited when !player.Entity.Controls.Sneak:
-                    SnapClosed(player.Entity);
-                    return true;
                 case EnumTrapState.Open when _inv[0].Empty:
                     return TryReadyTrap(player);
+                // Damage players if they attempt to touch the trap without sneaking
+                case EnumTrapState.Open when !(player.Entity.Controls.Sneak || player.Entity.Controls.FloorSitting):
+                case EnumTrapState.Baited when !(player.Entity.Controls.Sneak || player.Entity.Controls.FloorSitting):
+                    SnapClosed(player.Entity);
+                    return true;
                 case EnumTrapState.Baited when _inv[0].Itemstack != null:
                 {
                     if (!player.InventoryManager.TryGiveItemstack(_inv[0].Itemstack))
@@ -231,14 +232,14 @@ namespace BearTrap.ModBlockEntity
         public void SnapClosed(Entity entity)
         {
             if (TrapState is EnumTrapState.Destroyed or EnumTrapState.Closed) return;
-            if (entity is EntityAgent entityAgent)
+            if (entity.IsCreature)
             {
                 TrapState = EnumTrapState.Closed;
-                Core.Logger.Warning("Snap Damage");
-                DamageEntity(entityAgent, SnapDamage);
-                Core.Logger.Warning("SnapMount: {0}", entityAgent.MountedOn);
-                if (entityAgent.MountedOn == null) MountEntity(entityAgent, "snapclosed");
-                Core.Logger.Warning("SnapMount2: {0}", entityAgent.MountedOn);
+                DamageEntity(entity, SnapDamage);
+                if (entity is EntityAgent entityAgent)
+                {
+                    if (entityAgent.MountedOn == null) MountEntity(entityAgent, "snapclosed");
+                }
                 _inv[0].Itemstack = null;
             }
 
@@ -250,14 +251,23 @@ namespace BearTrap.ModBlockEntity
         private void DamageEntity(Entity entity, float damage)
         {
             if (!entity.HasBehavior<EntityBehaviorHealth>()) { return;}
+
+            var shouldRelease = false;
+            if (entity.GetBehavior<EntityBehaviorHealth>().Health - damage <= 0)
+            {
+                entity.WatchedAttributes.SetString("deathByEntityLangCode", "prefixandcreature-" + Block.Code.FirstCodePart());
+                entity.WatchedAttributes.SetString("deathByEntity", Block.Code.FirstCodePart());
+                shouldRelease = true;
+            }
             entity.ReceiveDamage(new DamageSource()
                 {
                     Source = EnumDamageSource.Block,
                     SourceBlock = this.Block,
                     Type = EnumDamageType.PiercingAttack,
-                    SourcePos = this.Pos.ToVec3d()
+                    SourcePos = MountPosition.AsBlockPos.ToVec3d()
                 },
                 damage: damage);
+            if (shouldRelease) UnmountEntity();
         }
         
         public override void OnBlockBroken(IPlayer byPlayer = null)
@@ -304,6 +314,8 @@ namespace BearTrap.ModBlockEntity
             }
             this._mountedByEntityId = tree.GetLong("mountedByEntityId");
             this._mountedByPlayerUid = tree.GetString("mountedByPlayerUid");
+            
+            this._destroyedByLangCode = tree.GetString("destroyedByLangCode");
 
             // Do this last
             RedrawAfterReceivingTreeAttributes(worldForResolving);     // Redraw on client after we have completed receiving the update from server
@@ -318,6 +330,7 @@ namespace BearTrap.ModBlockEntity
             tree.SetInt("trapState", (int)TrapState);
             tree.SetLong("mountedByEntityId", this._mountedByEntityId);
             tree.SetString("mountedByPlayerUid", this._mountedByPlayerUid);
+            tree.SetString("destroyedByLangCode", _destroyedByLangCode);
         }
 
         
@@ -325,6 +338,11 @@ namespace BearTrap.ModBlockEntity
         {
             if (TrapState == EnumTrapState.Destroyed)
             {
+                if (_destroyedByLangCode != null)
+                {
+                    dsc.Append(Lang.Get(Core.Modid + ":info-beartrap-destroyedby") + Lang.Get(_destroyedByLangCode));
+                    return;
+                }
                 dsc.Append(Lang.Get(Core.Modid + ":info-beartrap-destroyed"));
                 return;
             }
@@ -399,8 +417,6 @@ namespace BearTrap.ModBlockEntity
 
         public void DidUnmount(EntityAgent entityAgent)
         {
-            Core.Logger.Warning("DidUnmount: {0}", this._mountedByPlayerUid);
-            Core.Logger.Warning("DidUnmount: {0}", this._mountedByEntityId);
             this.MountedBy = null;
             this._mountedByEntityId = 0L;
             this._mountedByPlayerUid = null;
@@ -415,8 +431,6 @@ namespace BearTrap.ModBlockEntity
             this._mountedByPlayerUid = entityAgent is EntityPlayer entityPlayer ? entityPlayer.PlayerUID : null;
             this._mountedByEntityId = this.MountedBy.EntityId;
             this.LocalEyePos = entityAgent.LocalEyePos.ToVec3f();
-            Core.Logger.Warning("DidMount: {0}", this._mountedByPlayerUid);
-            Core.Logger.Warning("DidMount: {0}", this._mountedByEntityId);
         }
         
         private EntityControls _controls = new EntityControls();
@@ -427,7 +441,7 @@ namespace BearTrap.ModBlockEntity
         public IMountableSupplier MountSupplier => null;
         private EntityPos _mountPos = new EntityPos();
         private long _mountedByEntityId;
-        private string _mountedByPlayerUid;
+        private string? _mountedByPlayerUid;
         public EntityPos MountPosition
         {
             get
@@ -459,6 +473,8 @@ namespace BearTrap.ModBlockEntity
             if (currentTime - lastTrapDamageTime >= trapDamageCooldown)
             {
                 lastTrapDamageTime = currentTime;
+                Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5,
+                    Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
                 Damage += 1;
                 MarkDirty();
                 if (Damage > MaxDamage - 1)
@@ -473,6 +489,6 @@ namespace BearTrap.ModBlockEntity
 
         public EnumMountAngleMode AngleMode => EnumMountAngleMode.Unaffected;
         public string SuggestedAnimation => "stand";
-        public Vec3f LocalEyePos { get; private set; }
+        public Vec3f? LocalEyePos { get; private set; }
     }
 }
