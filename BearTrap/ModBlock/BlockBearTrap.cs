@@ -176,8 +176,15 @@ namespace BearTrap.ModBlock
         public override void OnBlockRemoved(IWorldAccessor world, BlockPos pos)
         {
             if (world.BlockAccessor.GetBlockEntity(pos) is BlockEntityBearTrap blockEntity)
-                blockEntity.MountedBy?.TryUnmount();
+                blockEntity.UnmountEntity();
             base.OnBlockRemoved(world, pos);
+        }
+
+        public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
+        {
+            if (world.BlockAccessor.GetBlockEntity(pos) is BlockEntityBearTrap blockEntity)
+                blockEntity.UnmountEntity();
+            base.OnBlockBroken(world, pos, byPlayer, dropQuantityMultiplier);
         }
 
         public override void AddExtraHeldItemInfoPostMaterial(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world)

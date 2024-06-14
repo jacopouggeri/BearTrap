@@ -25,8 +25,8 @@ namespace BearTrap.ModBlockEntity
     public class BlockEntityBearTrap : BlockEntityDisplay, IAnimalFoodSource, IMountable
     {
         protected ICoreServerAPI Sapi;
-
-        private InventoryGeneric _inv;
+        private readonly object _lock = new object();
+        private InventoryGeneric _inv = new(1, null, null);
         public override InventoryBase Inventory => _inv;
         public override string InventoryClassName => "beartrap";
         public override int DisplayedItems => TrapState == EnumTrapState.Baited ? 1 : 0;
@@ -70,34 +70,17 @@ namespace BearTrap.ModBlockEntity
             {
                 _trapState = value;
                 if (value != EnumTrapState.Baited) _inv[0].Itemstack = null;
+                if (value != EnumTrapState.Closed) UnmountEntity("trapStateChange");
                 MarkDirty(true);
             }
         }
         
         public float SnapDamage => ((ModBlock.BearTrap)Block).SnapDamage;
-        
-        public BlockEntityBearTrap()
-        {
-            _inv = new InventoryGeneric(1, null, null);
-        }
 
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
             _inv.LateInitialize("beartrap-" + Pos, api);
-            this._controls.OnAction = this.OnControls;
-            
-            EntityAgent entityAgent;
-            if (this._mountedByPlayerUid == null)
-            {
-                entityAgent = api.World.GetEntityById(this._mountedByEntityId) as EntityAgent;
-            }
-            else
-            {
-                IPlayer player = api.World.PlayerByUid(this._mountedByPlayerUid);
-                entityAgent = player?.Entity;
-            }
-            entityAgent?.TryMount(this);
             
             Sapi = api as ICoreServerAPI;
             if (api.Side != EnumAppSide.Client)
@@ -120,22 +103,30 @@ namespace BearTrap.ModBlockEntity
             }
 
             _shapeByState = shapeAssetLocations;
-            Api.World.RegisterGameTickListener(UnMountIfDead, 50);
+            
+            this._controls.OnAction = this.OnControls;
+            
+            EntityAgent entityAgent;
+            if (this._mountedByPlayerUid == null)
+            {
+                entityAgent = api.World.GetEntityById(this._mountedByEntityId) as EntityAgent;
+            }
+            else
+            {
+                IPlayer player = api.World.PlayerByUid(this._mountedByPlayerUid);
+                entityAgent = player?.Entity;
+            }
+            entityAgent?.TryMount(this);
+            api.World.RegisterGameTickListener(SlowTick, 50);
         }
         
-        private void UnMountIfDead(float deltaTime)
+        private void SlowTick(float deltaTime)
         {
-            if (TrapState != EnumTrapState.Closed) this.MountedBy?.TryUnmount();
-                if (MountedBy is { Alive: false })
-                {
-                    this.MountedBy.TryUnmount();
-                }
-
-                if (TrapState == EnumTrapState.Closed)
-                {
-                    if (this.Api.World.Side.IsServer()) this.MountedBy?.ServerPos.SetPos(MountPosition);
-                    else this.MountedBy?.Pos.SetPos(MountPosition);
-                }
+            if (TrapState != EnumTrapState.Closed) return;
+            if (MountedBy is { Alive: false })
+            {
+                UnmountEntity("dead");
+            }
         }
 
         private void SetDestroyed()
@@ -144,6 +135,12 @@ namespace BearTrap.ModBlockEntity
             Damage = MaxDamage;
             Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit3"), Pos.X + 0.5,
                 Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
+            UnmountEntity("destroyed");
+        }
+
+        public void UnmountEntity(String dsc = null)
+        {
+            Core.Logger.Warning("UnmountingMethod: {0}", dsc);
             this.MountedBy?.TryUnmount();
         }
         
@@ -154,7 +151,7 @@ namespace BearTrap.ModBlockEntity
                 case EnumTrapState.Destroyed:
                     return true;
                 case EnumTrapState.Closed when player.Entity.Controls.Sneak:
-                    MountedBy?.TryUnmount();
+                    UnmountEntity("openTrap");
                     TrapState = EnumTrapState.Open;
                     return true;
                 // Damage players if they attempt to touch the trap without sneaking
@@ -213,15 +210,18 @@ namespace BearTrap.ModBlockEntity
             if (TrapState is EnumTrapState.Destroyed or EnumTrapState.Closed) return;
             if (entity is EntityAgent entityAgent)
             {
+                TrapState = EnumTrapState.Closed;
                 Core.Logger.Warning("Snap Damage");
                 DamageEntity(entityAgent, SnapDamage);
-                entityAgent.TryUnmount();
-                entityAgent.TryMount(this);
+                Core.Logger.Warning("SnapMount: {0}", entityAgent.MountedOn);
+                if (entityAgent.MountedOn == null) entityAgent.TryMount(this);
+                Core.Logger.Warning("SnapMount2: {0}", entityAgent.MountedOn);
                 _inv[0].Itemstack = null;
             }
+
             Damage += 1;
-            TrapState = EnumTrapState.Closed;
-            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25, Pos.Z + 0.5, null, true, 16);
+            Api.World.PlaySoundAt(new AssetLocation("game:sounds/effect/anvilhit1"), Pos.X + 0.5, Pos.Y + 0.25,
+                Pos.Z + 0.5, null, true, 16);
         }
         
         private void DamageEntity(Entity entity, float damage)
@@ -375,8 +375,8 @@ namespace BearTrap.ModBlockEntity
 
         public void DidUnmount(EntityAgent entityAgent)
         {
-            Core.Logger.Warning("DidUnmount: {}", this._mountedByPlayerUid);
-            Core.Logger.Warning("DidUnmount: {}", this._mountedByEntityId);
+            Core.Logger.Warning("DidUnmount: {0}", this._mountedByPlayerUid);
+            Core.Logger.Warning("DidUnmount: {0}", this._mountedByEntityId);
             this.MountedBy = null;
             this._mountedByEntityId = 0L;
             this._mountedByPlayerUid = null;
@@ -391,8 +391,8 @@ namespace BearTrap.ModBlockEntity
             this._mountedByPlayerUid = entityAgent is EntityPlayer entityPlayer ? entityPlayer.PlayerUID : null;
             this._mountedByEntityId = this.MountedBy.EntityId;
             this.LocalEyePos = entityAgent.LocalEyePos.ToVec3f();
-            Core.Logger.Warning("DidMount: {}", this._mountedByPlayerUid);
-            Core.Logger.Warning("DidMount: {}", this._mountedByEntityId);
+            Core.Logger.Warning("DidMount: {0}", this._mountedByPlayerUid);
+            Core.Logger.Warning("DidMount: {0}", this._mountedByEntityId);
         }
         
         private EntityControls _controls = new EntityControls();
@@ -426,20 +426,28 @@ namespace BearTrap.ModBlockEntity
             handled = EnumHandling.PreventSubsequent;
         }
 
+        private double lastTrapDamageTime;
+        private double trapDamageCooldown = 0.02;
+        
         private void DamageEntityAndTrap()
         {
-            DamageEntity(MountedBy, SnapDamage * 0.1f);
-            BehaviorUtil.AddTiredness(MountedBy, 2f);
-            Damage += 1;
-            MarkDirty();
-            if (Damage > MaxDamage - 1)
+            double currentTime = Api.World.Calendar.TotalHours;
+            if (currentTime - lastTrapDamageTime >= trapDamageCooldown)
             {
-                SetDestroyed();
+                lastTrapDamageTime = currentTime;
+                Damage += 1;
+                MarkDirty();
+                if (Damage > MaxDamage - 1)
+                {
+                    SetDestroyed();
+                }
             }
+            DamageEntity(MountedBy, SnapDamage * 0.1f);
+            BehaviorUtil.AddTiredness(MountedBy, 1f);
         }
 
         public EnumMountAngleMode AngleMode => EnumMountAngleMode.Unaffected;
-        public string SuggestedAnimation => "sitflooridle";
+        public string SuggestedAnimation => null;
         public Vec3f LocalEyePos { get; private set; }
     }
 }
